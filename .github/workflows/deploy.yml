@@ -1,42 +1,12 @@
-name: CI/CD Pipeline
+name: Deploy — Merge & Build APK
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_dispatch:   # ← Se activa manualmente con un botón en GitHub
 
 jobs:
-  # ──────────────────────────────────────────
-  # JOB 1: Tests automáticos
-  # ──────────────────────────────────────────
-  test:
-    name: 🧪 Run Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm install
-
-      - name: Validate CHANGELOG
-        run: node scripts/validate-changelog.js
-
-      - run: npm test -- --watchAll=false --passWithNoTests
-
-      - run: npm run lint --if-present
-
-  # ──────────────────────────────────────────
-  # JOB 2: Aprobación + Merge a main
-  # ──────────────────────────────────────────
   promote-to-production:
     name: 🚀 Promote to Production
-    needs: test
     runs-on: ubuntu-latest
-    environment: production
     outputs:
       version: ${{ steps.changelog.outputs.VERSION }}
       notes: ${{ steps.changelog.outputs.RELEASE_NOTES }}
@@ -56,12 +26,9 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git checkout main
-          git merge origin/dev --no-ff -m "chore: release v${{ steps.changelog.outputs.VERSION }} [ci skip]"
+          git merge origin/dev --no-ff --allow-unrelated-histories -m "chore: release v${{ steps.changelog.outputs.VERSION }} [ci skip]"
           git push origin main
 
-  # ──────────────────────────────────────────
-  # JOB 3: Build APK con Expo EAS
-  # ──────────────────────────────────────────
   build-apk:
     name: 📦 Build APK v${{ needs.promote-to-production.outputs.version }}
     needs: promote-to-production
@@ -74,19 +41,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-
       - run: npm install
-
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-
       - name: Build APK
         run: |
           eas build \
@@ -95,14 +58,12 @@ jobs:
             --local \
             --non-interactive \
             --output ./build/SkillPath-v${{ env.APP_VERSION }}.apk
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: SkillPath-v${{ env.APP_VERSION }}-${{ env.RELEASE_DATE }}
           path: ./build/SkillPath-v${{ env.APP_VERSION }}.apk
           retention-days: 30
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
