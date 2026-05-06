@@ -2,7 +2,7 @@
   "expo": {
     "name": "SkillPath",
     "slug": "SkillPath",
-    "version": "0.0.1",
+    "version": "0.1.0-dev",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -27,7 +27,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      [
+        "expo-image",
+        {
+          "disableLibdav1d": true
+        }
+      ]
     ]
   }
 }
