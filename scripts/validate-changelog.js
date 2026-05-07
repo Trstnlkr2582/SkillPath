@@ -3,7 +3,6 @@ const fs = require("fs");
 const changelog = fs.readFileSync("CHANGELOG.md", "utf-8").replace(/\r\n/g, "\n");
 const packageJson = JSON.parse(fs.readFileSync("package.json", "utf-8"));
 
-// ✅ Soporta versiones con sufijos: 0.1.0-dev, 1.0.0-beta, etc.
 const versionMatch = changelog.match(/^## \[([^\]]+)\]/m);
 if (!versionMatch) {
   console.error("❌ CHANGELOG.md no tiene ninguna versión documentada.");

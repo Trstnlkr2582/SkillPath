@@ -8,9 +8,10 @@ export default function App() {
 
   let [fontsLoaded] = useFonts({
     Inter_400Regular,
-    Inter_800ExtraBold,
-    Inter_600SemiBold,
     Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
   });
 
   if (!fontsLoaded) {

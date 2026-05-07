@@ -1,4 +1,4 @@
-import { StyleSheet} from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const basic = StyleSheet.create({
   container: {
@@ -9,20 +9,21 @@ export const basic = StyleSheet.create({
   title1: {
     fontFamily: "Inter_800ExtraBold",
     color: "#075343",
-    fontSize: 36,
+    fontSize: Platform.OS != "web" ? 32 : 36,
     textAlign: "center"
   },
   title2: {
     fontFamily: "Inter_600SemiBold",
     color: "black",
-    fontSize: 28,
+    fontSize: Platform.OS != "web" ? 24 : 28,
     textAlign: "center",
-    padding: 25,
+    padding: Platform.OS != "web" ? 18 : 20,
+    paddingTop: Platform.OS != "web" ? 0 : 20
   },
   text: {
     fontFamily: "Inter_400Regular",
     color: "#3F4945",
-    fontSize: 18,
+    fontSize: Platform.OS != "web" ? 15 : 18,
     textAlign: "center",
     paddingHorizontal: 30,
   },
@@ -33,30 +34,27 @@ export const basic = StyleSheet.create({
     color: "#707975",
     textAlign: "center",
     justifyContent: "flex-end",
-    height: 10,
-    paddingBottom: 70,
+    paddingBottom: Platform.OS != "web" ? 30 : 30,
     paddingHorizontal: 30
   },
-  icon:{
-    height:22,
-    width:22,
+  icon: {
+    height: 22,
+    width: 22,
     margin: 10,
   },
-  button:{
-    width: "70%",
+  button: {
     backgroundColor: "#2A6B5A",
     fontFamily: "Inter_600SemiBold",
     fontSize: 14,
     justifyContent: "center",
-    alignContent: "center",
-    paddingVertical:10,
+    alignSelf: "center",
+    paddingVertical: 10,
     paddingHorizontal: 5,
     borderRadius: 4,
     textAlign: "center",
     margin: 5
   },
-  buttonAlt:{
-    width: "70%",
+  buttonAlt: {
     backgroundColor: "#A7E9D30d",
     borderWidth: 3,
     borderColor: "#075343",
@@ -64,26 +62,25 @@ export const basic = StyleSheet.create({
     fontSize: 14,
     justifyContent: "center",
     alignContent: "center",
-    paddingVertical:10,
+    paddingVertical: 10,
     paddingHorizontal: 5,
     borderRadius: 4,
     textAlign: "center",
     margin: 5
   },
   separator: {
-    marginVertical: 30,
-    height:2,
+    borderRadius: 5,
+    marginVertical: Platform.OS != "web" ? 16 : 30,
+    height: 2,
     width: "70%",
     borderWidth: 2,
     borderColor: "#d3d3d3"
   },
   modal: {
-    borderRadius:7,
+    borderRadius: 7,
     borderWidth: 2,
     borderColor: "#BFC9C4",
     backgroundColor: "white",
-    width: "100%",
-    height: "70%",
     alignContent: "center",
     alignItems: "center",
     justifyContent: "center"
@@ -98,4 +95,13 @@ export const basic = StyleSheet.create({
     padding: 10,
     backgroundColor: "white",
   },
+  rawText: {
+    fontFamily: "Inter_400Regular"
+  },
+  rawBoldText: {
+    fontFamily: "Inter_700Bold"
+  },
+  rawMedium: {
+    fontFamily: "Inter_500Medium"
+  }
 });

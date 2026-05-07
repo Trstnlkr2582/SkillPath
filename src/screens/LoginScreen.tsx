@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, useWindowDimensions, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { basic } from '../styles/Layouts'
 import Checkbox from 'expo-checkbox';
@@ -16,22 +16,23 @@ export default function LogInScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false)
+    const { width } = useWindowDimensions();
 
     return (
         <View style={{ ...basic.container, backgroundColor: "#F4F6F5", borderTopWidth: 2, borderColor: "#BFC9C4" }}>
             <View style={{ ...basic.container, justifyContent: "flex-end", position: "absolute", height: "100%", width: "100%" }}>
-                <Text style={{ ...basic.bottomText, fontSize: 16 }}>© 2024 SkillPath. Sistema de Gestión de
+                <Text style={{ ...basic.bottomText, fontSize: 16 }}>© 2026 SkillPath. Sistema de Gestión de
                     Aprendizaje.</Text>
             </View>
             <View style={{ ...basic.container, width: "90%" }}>
-                <View style={{ ...basic.modal, maxWidth: 450 }}>
+                <View style={{ ...basic.modal, maxWidth: 450 , width: "100%", height: Platform.OS != "web" ? "70%" : "60%", minHeight: 550}}>
                     <View style={{ alignItems: "flex-start", marginVertical: 120 }}>
                         <Text style={{ ...basic.text, fontSize: 16, paddingHorizontal: 0, color: "black"}}>Bienvenido de nuevo</Text>
-                        <Text style={{ ...basic.text, fontSize: 16, paddingHorizontal: 0, textAlign: "left", marginBottom: 20 }}>Ingresa tus credenciales institucionales{"\n"}para continuar</Text>
+                        <Text style={{ ...basic.text, fontSize: Platform.OS != "web" ? 16 : 15.7, paddingHorizontal: 0, textAlign: "left", marginBottom: 20 }}>Ingresa tus credenciales institucionales{"\n"}para continuar</Text>
                         <View style={{ alignItems: "flex-start" }}>
                             <Text style={{ ...basic.text, fontSize: 16, paddingHorizontal: 0, color: "black", marginBottom: 10 }}>Correo electrónico institucional</Text>
                             <TextInput
-                                style={basic.input}
+                                style={{...basic.input, width:Platform.OS != "web" ? width*0.7 : "100%"}}
                                 placeholder="nombre@institucion.edu"
                                 placeholderTextColor={"#6B7280"}
                                 value={email}
@@ -45,7 +46,7 @@ export default function LogInScreen() {
                                 </TouchableOpacity>
                             </View>
                             <TextInput
-                                style={basic.input}
+                                style={{...basic.input, width:Platform.OS != "web" ? width*0.7 : "100%"}}
                                 placeholder="••••••••"
                                 placeholderTextColor={"#6B7280"}
                                 secureTextEntry={true}
@@ -57,7 +58,7 @@ export default function LogInScreen() {
                                 <Text style={{ ...basic.text, fontSize: 16, paddingHorizontal: 10, color: "#3F4945" }}>Mantener sesión iniciada</Text>
                             </View>
                             <TouchableOpacity
-                                style={{ ...basic.button, alignSelf: "center", marginTop: 30 }}
+                                style={{ ...basic.button, marginTop: 30, width:Platform.OS != "web" ? width*0.7 : "100%" }}
                                 onPress={() => {
                                     if (email != "" && password != "") {
                                         navigation.replace('Dashboard');
@@ -67,11 +68,12 @@ export default function LogInScreen() {
                                         }
                                     }
                                 }}
+                                disabled={email == "" && password == ""}
                                 activeOpacity={0.7}
                             >
                                 <Text style={{ color: "#A7E9D3", alignSelf: "center", fontFamily: "Inter_600SemiBold", }}>Entrar</Text>
                             </TouchableOpacity>
-                            <View style={{ ...basic.separator, alignSelf: "center" }} />
+                            <View style={{ ...basic.separator, alignSelf: "center", width: Platform.OS != "web" ? width*0.7 : "70%"}} />
                             <View style={{ alignItems: "center", alignSelf: "center" }}>
                                 <Text style={{ ...basic.text, fontSize: 16, paddingHorizontal: 0, color: "#3F4945" }}>¿Necesita asistencia técnica?</Text>
                                 <TouchableOpacity onPress={() => { }} activeOpacity={0.7}>
@@ -81,7 +83,7 @@ export default function LogInScreen() {
                         </View>
                     </View>
                 </View>
-                <View style={{ flexDirection: "row", margin: 50, marginHorizontal: 120 }}>
+                <View style={{ flexDirection: "row", margin: 20 }}>
                     <TouchableOpacity onPress={() => { }} activeOpacity={0.7}>
                         <Text style={{ ...basic.text, fontSize: 16, paddingHorizontal: 10 }}>Privacidad</Text>
                     </TouchableOpacity>
