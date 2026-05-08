@@ -36,7 +36,7 @@ export default function SplashScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={{...basic.buttonAlt, width: Platform.OS != "web" ? width*0.7 : "70%"}}
-          onPress={() => navigation.navigate('LogIn')}
+          onPress={() => navigation.replace('LogIn')}
           activeOpacity={0.7} // Controls how dim the view becomes (default 0.2)
         >
           <Text style={{ color: "#075343", alignSelf: "center", fontFamily: "Inter_600SemiBold", }}>Iniciar Sesión</Text>

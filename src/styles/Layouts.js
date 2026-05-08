@@ -103,5 +103,23 @@ export const basic = StyleSheet.create({
   },
   rawMedium: {
     fontFamily: "Inter_500Medium"
-  }
+  },
+  sectionLabel: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: Platform.OS !== "web" ? 11 : 12,
+    color: "#075343",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  badge: {
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    alignSelf: "flex-start",
+  },
+  metaText: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    color: "#707975",
+  },
 });
