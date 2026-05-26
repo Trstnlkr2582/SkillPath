@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -44,20 +45,6 @@ export default function ProfessorStudentDetailScreen({ navigation }: any) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerIconBtn}>
-            <Ionicons name="notifications-outline" size={20} color={colors.textMuted} />
-          </TouchableOpacity>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>DR</Text>
-          </View>
-        </View>
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Student hero */}
         <View style={styles.heroSection}>
@@ -73,10 +60,10 @@ export default function ProfessorStudentDetailScreen({ navigation }: any) {
 
         {/* Action buttons */}
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.contactBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.contactBtn} activeOpacity={0.7} onPress={() => navigation.navigate('ProfessorAnnouncement')}>
             <Text style={styles.contactBtnText}>Contactar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.reportBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.reportBtn} activeOpacity={0.7} onPress={() => navigation.navigate('ProfessorEvaluationResult')}>
             <Text style={styles.reportBtnText}>Reporte</Text>
           </TouchableOpacity>
         </View>
@@ -108,7 +95,7 @@ export default function ProfessorStudentDetailScreen({ navigation }: any) {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Crecimiento de Competencias</Text>
-            <TouchableOpacity style={styles.periodChip}>
+            <TouchableOpacity style={styles.periodChip} onPress={() => Alert.alert('Período', 'Selecciona el período de seguimiento.')}>
               <Text style={styles.periodChipText}>Semana 1 – S04</Text>
               <Ionicons name="chevron-down" size={12} color={colors.textMuted} />
             </TouchableOpacity>
@@ -130,7 +117,7 @@ export default function ProfessorStudentDetailScreen({ navigation }: any) {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Feedback Previo</Text>
-            <TouchableOpacity style={styles.filterIconBtn}>
+            <TouchableOpacity style={styles.filterIconBtn} onPress={() => Alert.alert('Filtrar', 'Filtrar historial de feedback.')}>
               <Ionicons name="filter-outline" size={16} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
@@ -143,7 +130,7 @@ export default function ProfessorStudentDetailScreen({ navigation }: any) {
               <Text style={styles.feedbackTime}>{fb.time}</Text>
             </View>
           ))}
-          <TouchableOpacity style={styles.seeAllFeedback}>
+          <TouchableOpacity style={styles.seeAllFeedback} onPress={() => navigation.navigate('ProfessorReview')}>
             <Text style={styles.seeAllText}>Ver todo el historial →</Text>
           </TouchableOpacity>
         </View>
@@ -160,7 +147,7 @@ export default function ProfessorStudentDetailScreen({ navigation }: any) {
               <View style={styles.gradeBadge}>
                 <Text style={[styles.gradeValue, { color: item.color }]}>{item.grade}</Text>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('ProfessorReview')}>
                 <Ionicons name="eye-outline" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             </View>

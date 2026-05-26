@@ -26,11 +26,11 @@ export default function ForgotPasswordScreen({ navigation }: any) {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={{ width: 38 }} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={16} color={colors.primary} />
+          <Text style={styles.backButtonText}>Volver</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.container}>
@@ -82,20 +82,16 @@ export default function ForgotPasswordScreen({ navigation }: any) {
             >
               {loading
                 ? <ActivityIndicator color={colors.white} />
-                : <Text style={styles.primaryButtonText}>Enviar enlace</Text>
+                : <Text style={styles.primaryButtonText}>Enviar instrucciones</Text>
               }
             </TouchableOpacity>
 
-            <View style={styles.divider} />
-
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => navigation.navigate('Login')}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="arrow-back" size={16} color={colors.primary} />
-              <Text style={styles.secondaryButtonText}>Volver al inicio de sesión</Text>
-            </TouchableOpacity>
+            <View style={styles.infoBox}>
+              <Ionicons name="information-circle-outline" size={16} color={colors.textMuted} style={{ marginTop: 1 }} />
+              <Text style={styles.infoBoxText}>
+                Si no recibes el correo en unos minutos, revisa tu carpeta de correo no deseado (SPAM) o solicita un nuevo enlace.
+              </Text>
+            </View>
           </View>
         ) : (
           <View style={styles.card}>
@@ -133,8 +129,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  backButton: { padding: spacing.xs },
+  backButton: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: spacing.xs },
+  backButtonText: { fontSize: fontSize.body, color: colors.primary, fontWeight: '500' },
   headerTitle: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: 12,
+    marginTop: spacing.sm,
+  },
+  infoBoxText: { flex: 1, fontSize: 12, color: colors.textMuted, lineHeight: 18 },
   container: { flex: 1, padding: spacing.md, paddingTop: 24 },
   card: {
     backgroundColor: colors.white,

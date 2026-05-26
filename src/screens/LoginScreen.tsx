@@ -30,11 +30,7 @@ export default function LoginScreen({ navigation }: any) {
       {/* TopAppBar */}
       <View style={styles.topBar}>
         <Text style={styles.brandText}>SkillPath</Text>
-        <View style={styles.menuIcon}>
-          <View style={styles.menuLine} />
-          <View style={styles.menuLine} />
-          <View style={styles.menuLine} />
-        </View>
+        <Ionicons name="school-outline" size={24} color={colors.primary} />
       </View>
 
       <ScrollView
@@ -124,11 +120,8 @@ export default function LoginScreen({ navigation }: any) {
                 }
                 setLoading(true)
                 try {
-                  const { needsOnboarding } = await login(email, password)
-                  if (needsOnboarding) {
-                    navigation.replace('Register')
-                  }
-                  // navigator.tsx redirige automáticamente por rol
+                  await login(email, password)
+                  // navigator.tsx redirige automáticamente (por rol o a Onboarding)
                 } catch (err: any) {
                   Alert.alert('Error al iniciar sesión', err.message)
                 } finally {
@@ -138,7 +131,7 @@ export default function LoginScreen({ navigation }: any) {
             >
               {loading
                 ? <ActivityIndicator color={colors.white} />
-                : <Text style={styles.loginButtonText}>Ingresar</Text>
+                : <Text style={styles.loginButtonText}>Entrar</Text>
               }
             </TouchableOpacity>
           </View>
@@ -147,9 +140,10 @@ export default function LoginScreen({ navigation }: any) {
           <View style={styles.assistance}>
             <Text style={styles.assistanceText}>¿Necesitas asistencia técnica?</Text>
             <TouchableOpacity>
-              <Text style={styles.assistanceLink}>Contactar soporte</Text>
+              <Text style={styles.assistanceLink}>Centro de Ayuda</Text>
             </TouchableOpacity>
           </View>
+
         </View>
       </ScrollView>
 
@@ -195,16 +189,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: colors.primary,
-  },
-  menuIcon: {
-    gap: 4,
-    padding: spacing.xs,
-  },
-  menuLine: {
-    width: 22,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: colors.textMuted,
   },
   scrollContent: {
     padding: spacing.md,

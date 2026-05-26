@@ -105,7 +105,7 @@ export default function AdminConfirmActionScreen({ navigation }: any) {
             <TouchableOpacity
               style={[styles.confirmBtn, selected === 'archive' && styles.confirmBtnDanger]}
               activeOpacity={0.85}
-              onPress={() => navigation.goBack()}
+              onPress={() => navigation.navigate('AdminCourses')}
             >
               <Text style={styles.confirmBtnText}>Confirmar Acción</Text>
             </TouchableOpacity>
@@ -151,16 +151,16 @@ const styles = StyleSheet.create({
   warningText: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 22 },
   warningBold: { fontWeight: '600', color: colors.textPrimary },
   impactAlert: {
-    backgroundColor: colors.progressBg,
+    backgroundColor: colors.errorBg,
     borderRadius: radius.md,
     padding: spacing.sm,
     borderLeftWidth: 3,
-    borderLeftColor: colors.accentAmber,
+    borderLeftColor: colors.danger,
     gap: 6,
   },
   impactHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  impactTitle: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.progressText },
-  impactText: { fontSize: fontSize.bodySm, color: colors.progressText, lineHeight: 20 },
+  impactTitle: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.dangerText },
+  impactText: { fontSize: fontSize.bodySm, color: colors.dangerText, lineHeight: 20 },
   impactBold: { fontWeight: '700' },
   optionsSection: { gap: spacing.sm },
   optionRow: {
@@ -208,10 +208,10 @@ const styles = StyleSheet.create({
     flex: 1.5,
     height: 44,
     borderRadius: radius.md,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  confirmBtnDanger: { backgroundColor: colors.danger },
+  confirmBtnDanger: { backgroundColor: colors.primaryDark },
   confirmBtnText: { fontSize: fontSize.body, fontWeight: '600', color: colors.white },
 })

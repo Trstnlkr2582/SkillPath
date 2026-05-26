@@ -28,6 +28,12 @@ import AdminCourseDetailScreen from '../screens/AdminCourseDetailScreen'
 import AdminReportsScreen from '../screens/AdminReportsScreen'
 import AdminUsersScreen from '../screens/AdminUsersScreen'
 import AdminConfirmActionScreen from '../screens/AdminConfirmActionScreen'
+import AdminAddUserScreen from '../screens/AdminAddUserScreen'
+import AdminAnnouncementScreen from '../screens/AdminAnnouncementScreen'
+import EditProfileScreen from '../screens/EditProfileScreen'
+
+// Onboarding
+import OnboardingScreen from '../screens/OnboardingScreen'
 
 // Professor
 import ProfessorDashboardScreen from '../screens/ProfessorDashboardScreen'
@@ -69,6 +75,7 @@ function StudentStack() {
       <Stack.Screen name="CourseDetail" component={CourseDetailScreen} />
       <Stack.Screen name="Lesson" component={LessonScreen} />
       <Stack.Screen name="Submission" component={SubmissionScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   )
 }
@@ -84,6 +91,7 @@ function ProfessorStack() {
       <Stack.Screen name="ProfessorStudentDetail" component={ProfessorStudentDetailScreen} />
       <Stack.Screen name="ProfessorCourses" component={AdminCoursesScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   )
 }
@@ -97,7 +105,10 @@ function AdminStack() {
       <Stack.Screen name="AdminCourseDetail" component={AdminCourseDetailScreen} />
       <Stack.Screen name="AdminReports" component={AdminReportsScreen} />
       <Stack.Screen name="AdminUsers" component={AdminUsersScreen} />
+      <Stack.Screen name="AdminAddUser" component={AdminAddUserScreen} />
+      <Stack.Screen name="AdminAnnouncement" component={AdminAnnouncementScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen
         name="AdminConfirmAction"
         component={AdminConfirmActionScreen}
@@ -107,13 +118,20 @@ function AdminStack() {
   )
 }
 
+function OnboardingStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+    </Stack.Navigator>
+  )
+}
+
 export function RootStack() {
   const { user, role, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
-
   if (!user) return <AuthStack />
-
+  if (!user.onboarding_completed) return <OnboardingStack />
   if (role === 'admin') return <AdminStack />
   if (role === 'professor') return <ProfessorStack />
   return <StudentStack />

@@ -10,181 +10,139 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
+import BottomNavBar from '../components/BottomNavBar'
 
 const MODULES = [
   {
     id: 1,
-    title: 'Fundamentos de Diseño Visual',
-    lessons: 5,
-    duration: '4h 30m',
+    title: 'Principios Visuales',
+    desc: 'Repaso de teoría del color, tipografía y jerarquía visual aplicada a interfaces modernas.',
     status: 'completed' as const,
-    progress: 100,
+    actionLabel: 'Ver Resumen',
+    next: null,
   },
   {
     id: 2,
-    title: 'Sistemas de Diseño y Componentes',
-    lessons: 7,
-    duration: '6h',
+    title: 'Layouts y Grillas',
+    desc: 'Estructuras complejas, responsive design avanzado y uso de grillas dinámicas en sistemas de diseño.',
     status: 'active' as const,
-    progress: 60,
+    actionLabel: 'Continuar Lección',
+    next: 'Masonry Layouts',
   },
   {
     id: 3,
-    title: 'Prototipado e Interacción Avanzada',
-    lessons: 6,
-    duration: '5h 15m',
+    title: 'Atomic Design',
+    desc: 'Creación de sistemas escalables mediante átomos, moléculas y organismos reutilizables.',
     status: 'locked' as const,
-    progress: 0,
-  },
-  {
-    id: 4,
-    title: 'Evaluación de Usabilidad',
-    lessons: 4,
-    duration: '3h 30m',
-    status: 'locked' as const,
-    progress: 0,
+    actionLabel: null,
+    next: null,
   },
 ]
 
-const statusConfig = {
-  completed: {
-    dot: colors.primary,
-    badge: { bg: colors.activeBg, text: colors.activeText, label: 'Completado' },
-    icon: 'checkmark-circle' as const,
-    iconColor: colors.successText,
-  },
-  active: {
-    dot: colors.accentAmber,
-    badge: { bg: colors.progressBg, text: colors.progressText, label: 'En progreso' },
-    icon: 'play-circle-outline' as const,
-    iconColor: colors.accentAmber,
-  },
-  locked: {
-    dot: colors.border,
-    badge: { bg: colors.lockedBg, text: colors.lockedText, label: 'Bloqueado' },
-    icon: 'lock-closed-outline' as const,
-    iconColor: colors.textMuted,
-  },
+const STATUS = {
+  completed: { icon: 'checkmark-circle' as const, iconColor: colors.successText, iconBg: colors.activeBg, label: 'Completado', labelBg: colors.activeBg, labelText: colors.activeText },
+  active: { icon: 'pencil-outline' as const, iconColor: colors.primary, iconBg: colors.primaryLight, label: 'En curso', labelBg: colors.primaryLight, labelText: colors.primary },
+  locked: { icon: 'lock-closed-outline' as const, iconColor: colors.textMuted, iconBg: colors.surface, label: 'Bloqueado', labelBg: colors.surface, labelText: colors.textMuted },
 }
 
 export default function RoadmapScreen({ navigation }: any) {
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      {/* Course Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.white} />
-        </TouchableOpacity>
-        <View style={styles.headerNav}>
-          <TouchableOpacity style={styles.navChip}>
-            <Text style={styles.navChipText}>Contenido</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.navChip, styles.navChipActive]}>
-            <Text style={[styles.navChipText, styles.navChipActiveText]}>Hoja de ruta</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.courseInfo}>
-        <Text style={styles.courseName}>Diseño de Interfaces Avanzado</Text>
-        <Text style={styles.courseDesc}>
-          Domina los principios avanzados de interacción y diseño de sistemas complejos para productos
-          digitales de alto impacto.
-        </Text>
-        {/* Overall progress */}
-        <View style={styles.overallProgress}>
-          <View style={styles.progressLabelRow}>
-            <Text style={styles.progressLabel}>Progreso del curso</Text>
-            <Text style={styles.progressValue}>25%</Text>
-          </View>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: '25%' }]} />
-          </View>
-        </View>
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.timeline}>
-          {MODULES.map((module, idx) => {
-            const config = statusConfig[module.status]
-            const isLast = idx === MODULES.length - 1
+        {/* Breadcrumb + course info */}
+        <View style={styles.courseSection}>
+          <Text style={styles.breadcrumb}>Mis Cursos › Uú/UI Design</Text>
+          <Text style={styles.courseTitle}>Diseño de Interfaces Avanzado</Text>
+          <Text style={styles.courseDesc}>
+            Domina los principios avanzados de interacción y diseño de sistemas complejos para productos digitales de alto impacto.
+          </Text>
+          <View style={styles.progressRow}>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: '65%' }]} />
+            </View>
+            <Text style={styles.progressLabel}>65% Completado</Text>
+          </View>
+        </View>
+
+        {/* Module list */}
+        <View style={styles.moduleList}>
+          {MODULES.map((mod) => {
+            const s = STATUS[mod.status]
             return (
-              <View key={module.id} style={styles.timelineItem}>
-                {/* Dot + line */}
-                <View style={styles.timelineSide}>
-                  <View style={[styles.dot, { backgroundColor: config.dot }]} />
-                  {!isLast && (
-                    <View style={[styles.line, module.status === 'completed' && styles.lineCompleted]} />
-                  )}
+              <View key={mod.id} style={styles.moduleWrapper}>
+                {/* Left icon column */}
+                <View style={styles.iconCol}>
+                  <View style={[styles.moduleIcon, { backgroundColor: s.iconBg }]}>
+                    <Ionicons name={s.icon} size={20} color={s.iconColor} />
+                  </View>
+                  {mod.id < MODULES.length && <View style={styles.connector} />}
                 </View>
 
                 {/* Card */}
-                <TouchableOpacity
-                  style={[
-                    styles.moduleCard,
-                    module.status === 'active' && styles.moduleCardActive,
-                    module.status === 'locked' && styles.moduleCardLocked,
-                  ]}
-                  activeOpacity={module.status === 'locked' ? 1 : 0.8}
-                  onPress={() => module.status !== 'locked' && navigation.navigate('Lesson')}
-                >
-                  <View style={styles.moduleTop}>
-                    <View style={styles.moduleTitleRow}>
-                      <Ionicons name={config.icon} size={18} color={config.iconColor} />
-                      <Text style={[styles.moduleTitle, module.status === 'locked' && styles.moduleTitleLocked]}>
-                        {module.title}
-                      </Text>
-                    </View>
-                    <View style={[styles.badge, { backgroundColor: config.badge.bg }]}>
-                      <Text style={[styles.badgeText, { color: config.badge.text }]}>
-                        {config.badge.label}
-                      </Text>
+                <View style={[styles.moduleCard, mod.status === 'active' && styles.moduleCardActive]}>
+                  <View style={styles.cardTopRow}>
+                    <Text style={styles.moduleName}>{mod.title}</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: s.labelBg }]}>
+                      <Text style={[styles.statusText, { color: s.labelText }]}>{s.label}</Text>
                     </View>
                   </View>
+                  <Text style={styles.moduleDesc}>{mod.desc}</Text>
 
-                  <View style={styles.moduleMeta}>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="layers-outline" size={12} color={colors.textMuted} />
-                      <Text style={styles.metaText}>{module.lessons} lecciones</Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="time-outline" size={12} color={colors.textMuted} />
-                      <Text style={styles.metaText}>{module.duration}</Text>
-                    </View>
-                  </View>
+                  {mod.status === 'completed' && (
+                    <TouchableOpacity activeOpacity={0.7}>
+                      <Text style={styles.summaryLink}>↺ Ver Resumen</Text>
+                    </TouchableOpacity>
+                  )}
 
-                  {module.status === 'active' && (
-                    <View style={styles.moduleProgress}>
-                      <View style={styles.progressTrackSm}>
-                        <View style={[styles.progressFillAmber, { width: `${module.progress}%` }]} />
-                      </View>
-                      <Text style={styles.progressPct}>{module.progress}%</Text>
+                  {mod.status === 'active' && (
+                    <View style={styles.activeActions}>
+                      <TouchableOpacity
+                        style={styles.continueBtn}
+                        onPress={() => navigation.navigate('Lesson')}
+                        activeOpacity={0.85}
+                      >
+                        <Text style={styles.continueBtnText}>Continuar Lección →</Text>
+                      </TouchableOpacity>
+                      {mod.next && (
+                        <Text style={styles.nextLabel}>Próxima: {mod.next}</Text>
+                      )}
                     </View>
                   )}
-                </TouchableOpacity>
+                </View>
               </View>
             )
           })}
 
-          {/* Final goal */}
-          <View style={styles.timelineItem}>
-            <View style={styles.timelineSide}>
-              <View style={[styles.dot, styles.dotGoal]} />
+          {/* Certification final card */}
+          <View style={styles.certCard}>
+            <View style={styles.certCardLeft}>
+              <Ionicons name="trophy-outline" size={22} color={colors.accentAmber} />
             </View>
-            <View style={styles.goalCard}>
-              <Ionicons name="ribbon-outline" size={24} color={colors.accentViolet} />
-              <View>
-                <Text style={styles.goalTitle}>Certificación Final</Text>
-                <Text style={styles.goalSub}>Completa todos los módulos para obtener tu microcredencial</Text>
+            <View style={styles.certCardBody}>
+              <Text style={styles.certTitle}>Certificación Final</Text>
+              <Text style={styles.certDesc}>
+                Completa todos los módulos para obtener tu certificado oficial y compartirlo en tu red profesional.
+              </Text>
+              <View style={styles.certAvatars}>
+                <View style={styles.certAvatarStack}>
+                  {[0, 1, 2].map((i) => (
+                    <View key={i} style={[styles.miniAvatar, { marginLeft: i > 0 ? -10 : 0, zIndex: 3 - i }]}>
+                      <Text style={styles.miniAvatarText}>{String.fromCharCode(65 + i)}</Text>
+                    </View>
+                  ))}
+                </View>
+                <Text style={styles.certAvatarLabel}>+12k Estudiantes ya certificados</Text>
               </View>
             </View>
           </View>
         </View>
 
-        <View style={{ height: spacing.xl }} />
+        <View style={{ height: spacing.lg }} />
       </ScrollView>
+
+      <BottomNavBar activeTab="Catalog" navigation={navigation} />
     </SafeAreaView>
   )
 }
@@ -194,39 +152,45 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.primaryDark,
-    gap: spacing.sm,
+    height: 56,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  backBtn: { padding: spacing.xs },
-  headerNav: { flexDirection: 'row', gap: spacing.sm },
-  navChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)' },
-  navChipActive: { backgroundColor: colors.primary },
-  navChipText: { fontSize: fontSize.bodySm, color: 'rgba(255,255,255,0.7)', fontWeight: '400' },
-  navChipActiveText: { color: colors.white, fontWeight: '500' },
-  courseInfo: {
-    backgroundColor: colors.primaryDark,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.lg,
-    gap: 10,
-  },
-  courseName: { fontSize: fontSize.headingLg, fontWeight: '600', color: colors.white },
-  courseDesc: { fontSize: fontSize.body, color: 'rgba(255,255,255,0.65)', lineHeight: 22 },
-  overallProgress: { gap: spacing.xs },
-  progressLabelRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressLabel: { fontSize: fontSize.bodySm, color: 'rgba(255,255,255,0.6)' },
-  progressValue: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.white },
-  progressTrack: { height: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 4, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 4 },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.avatarBg, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 13, fontWeight: '600', color: colors.avatarText },
   scroll: { flex: 1 },
-  timeline: { paddingHorizontal: spacing.md, paddingTop: spacing.lg },
-  timelineItem: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.sm },
-  timelineSide: { alignItems: 'center', width: 16 },
-  dot: { width: 12, height: 12, borderRadius: 6, marginTop: 4 },
-  dotGoal: { backgroundColor: colors.accentViolet, width: 14, height: 14, borderRadius: 7 },
-  line: { width: 2, flex: 1, backgroundColor: colors.border, marginTop: spacing.xs },
-  lineCompleted: { backgroundColor: colors.primary },
+  courseSection: {
+    padding: spacing.md,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    gap: 8,
+  },
+  breadcrumb: { fontSize: 12, color: colors.textMuted },
+  courseTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
+  courseDesc: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 22 },
+  progressRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  progressTrack: { flex: 1, height: 6, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 4 },
+  progressLabel: { fontSize: 12, fontWeight: '500', color: colors.successText },
+  moduleList: { padding: spacing.md, gap: 0 },
+  moduleWrapper: { flexDirection: 'row', gap: 12, marginBottom: 0 },
+  iconCol: { alignItems: 'center', width: 40 },
+  moduleIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  connector: { width: 2, flex: 1, minHeight: 24, backgroundColor: colors.border, marginVertical: 4 },
   moduleCard: {
     flex: 1,
     backgroundColor: colors.white,
@@ -234,36 +198,62 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
-    marginBottom: spacing.sm,
-    gap: spacing.sm,
+    marginBottom: 12,
+    gap: 8,
   },
-  moduleCardActive: { borderColor: colors.accentAmber, borderWidth: 1.5 },
-  moduleCardLocked: { opacity: 0.6 },
-  moduleTop: { gap: spacing.sm },
-  moduleTitleRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },
-  moduleTitle: { flex: 1, fontSize: fontSize.headingSm, fontWeight: '500', color: colors.textPrimary },
-  moduleTitleLocked: { color: colors.textMuted },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 },
-  badgeText: { fontSize: fontSize.caption, fontWeight: '500' },
-  moduleMeta: { flexDirection: 'row', gap: spacing.md },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  metaText: { fontSize: fontSize.caption, color: colors.textMuted },
-  moduleProgress: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  progressTrackSm: { flex: 1, height: 4, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
-  progressFillAmber: { height: '100%', backgroundColor: colors.accentAmber, borderRadius: 4 },
-  progressPct: { fontSize: fontSize.caption, fontWeight: '500', color: colors.accentAmber, width: 28 },
-  goalCard: {
-    flex: 1,
+  moduleCardActive: { borderColor: colors.primary, borderWidth: 1.5 },
+  cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  moduleName: { flex: 1, fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 },
+  statusText: { fontSize: 11, fontWeight: '500' },
+  moduleDesc: { fontSize: fontSize.bodySm, color: colors.textMuted, lineHeight: 20 },
+  summaryLink: { fontSize: 13, color: colors.primary, fontWeight: '500' },
+  activeActions: { gap: 8 },
+  continueBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: radius.md,
+  },
+  continueBtnText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.white },
+  nextLabel: { fontSize: 12, color: colors.textMuted },
+  certCard: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.credentialBg,
+    alignItems: 'flex-start',
+    gap: 12,
+    backgroundColor: colors.progressBg,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.accentViolet + '40',
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.accentAmber,
     padding: spacing.md,
-    gap: spacing.md,
-    marginBottom: spacing.sm,
+    marginTop: 4,
   },
-  goalTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.credentialText },
-  goalSub: { fontSize: fontSize.bodySm, color: colors.textMuted, marginTop: 4 },
+  certCardLeft: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFF3D6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  certCardBody: { flex: 1, gap: 6 },
+  certTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
+  certDesc: { fontSize: fontSize.bodySm, color: colors.textMuted, lineHeight: 20 },
+  certAvatars: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  certAvatarStack: { flexDirection: 'row' },
+  miniAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.avatarBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.white,
+  },
+  miniAvatarText: { fontSize: 9, fontWeight: '700', color: colors.avatarText },
+  certAvatarLabel: { fontSize: 11, color: colors.textMuted },
 })

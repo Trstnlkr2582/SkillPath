@@ -1,66 +1,72 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
+
+const TRUST_BADGES = [
+  { icon: 'checkmark-circle-outline', label: 'Certificaciones Oficiales' },
+  { icon: 'school-outline', label: 'Rigor Académico' },
+  { icon: 'trending-up-outline', label: 'Crecimiento Profesional' },
+]
 
 export default function WelcomeScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-
-      {/* Decorative background rings */}
-      <View style={styles.outerRing} />
-      <View style={styles.innerRing} />
-
-      <View style={styles.container}>
-        {/* Logo Section */}
+      <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Logo section */}
         <View style={styles.logoSection}>
           <View style={styles.logoBox}>
-            <View style={styles.logoMark} />
+            <Ionicons name="school-outline" size={40} color={colors.primary} />
           </View>
           <Text style={styles.logoText}>SkillPath</Text>
         </View>
 
-        {/* Content Section */}
-        <View style={styles.contentSection}>
-          <Text style={styles.heading}>Tu futuro profesional{'\n'}empieza aquí.</Text>
-          <Text style={styles.subtitle}>
-            Domina nuevas habilidades con rutas de aprendizaje personalizadas y rigor académico de alto nivel.
-          </Text>
-        </View>
+        {/* Heading */}
+        <Text style={styles.heading}>Tu futuro profesional empieza aquí.</Text>
 
-        {/* Action Buttons */}
-        <View style={styles.actionSection}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => navigation.navigate('Register')}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.primaryButtonText}>Comenzar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => navigation.navigate('Login')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.secondaryButtonText}>Iniciar Sesión</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Subtitle */}
+        <Text style={styles.subtitle}>
+          Domina nuevas habilidades con rutas de aprendizaje personalizadas y rigor académico de alto nivel.
+        </Text>
+
+        {/* Primary Button */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => navigation.navigate('Register')}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.primaryButtonText}>Comenzar ahora →</Text>
+        </TouchableOpacity>
+
+        {/* Secondary Button */}
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => navigation.navigate('Login')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.secondaryButtonText}>Iniciar Sesión</Text>
+        </TouchableOpacity>
 
         {/* Trust Badges */}
-        <View style={styles.badgesSection}>
-          <Text style={styles.badge}>Certificaciones Oficiales</Text>
-          <Text style={styles.badge}>Rutas Personalizadas</Text>
-          <Text style={styles.badge}>Rigor Académico</Text>
+        <View style={styles.badgesRow}>
+          {TRUST_BADGES.map((badge) => (
+            <View key={badge.label} style={styles.badge}>
+              <Ionicons name={badge.icon as any} size={14} color={colors.successText} />
+              <Text style={styles.badgeText}>{badge.label}</Text>
+            </View>
+          ))}
         </View>
-      </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
+        {/* Footer */}
+        <Text style={styles.footer}>
           © 2024 SkillPath Professional Education. Todos los derechos reservados.
         </Text>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }
@@ -68,125 +74,104 @@ export default function WelcomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
-  outerRing: {
-    position: 'absolute',
-    width: 800,
-    height: 800,
-    borderRadius: 400,
-    borderWidth: 1,
-    borderColor: 'rgba(42, 107, 90, 0.08)',
-    top: 31,
-    left: -205,
-  },
-  innerRing: {
-    position: 'absolute',
-    width: 600,
-    height: 600,
-    borderRadius: 300,
-    borderWidth: 1,
-    borderColor: 'rgba(42, 107, 90, 0.13)',
-    top: 131,
-    left: -105,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: 48,
+    paddingBottom: spacing.xl,
   },
   logoSection: {
     alignItems: 'center',
-    marginTop: 40,
+    marginBottom: spacing.md,
   },
   logoBox: {
-    width: 96,
-    height: 96,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
+    width: 80,
+    height: 80,
+    borderRadius: 18,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  logoMark: {
-    width: 55,
-    height: 45,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    marginBottom: spacing.sm,
   },
   logoText: {
     fontSize: 28,
     fontWeight: '700',
     color: colors.primary,
-    letterSpacing: -0.3,
-  },
-  contentSection: {
-    marginTop: 40,
-    marginBottom: spacing.xl,
   },
   heading: {
-    fontSize: fontSize.headingXl,
+    fontSize: 26,
     fontWeight: '600',
     color: colors.textPrimary,
-    lineHeight: 38,
-    marginBottom: spacing.md,
+    textAlign: 'center',
+    marginTop: 32,
+    lineHeight: 34,
   },
   subtitle: {
-    fontSize: fontSize.body,
+    fontSize: 14,
     color: colors.textMuted,
-    lineHeight: 26,
-  },
-  actionSection: {
-    gap: 12,
-    marginBottom: spacing.xl,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginTop: 10,
   },
   primaryButton: {
     backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    height: 60,
+    height: 52,
+    width: '100%',
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 32,
   },
   primaryButtonText: {
     color: colors.white,
     fontSize: fontSize.body,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   secondaryButton: {
-    borderRadius: radius.md,
-    height: 53,
+    height: 48,
+    width: '100%',
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: colors.border,
+    marginTop: 10,
   },
   secondaryButtonText: {
-    color: colors.primary,
+    color: colors.textPrimary,
     fontSize: fontSize.body,
     fontWeight: '500',
   },
-  badgesSection: {
-    gap: 14,
-    alignItems: 'center',
+  badgesRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 32,
+    gap: 8,
   },
   badge: {
-    fontSize: fontSize.bodySm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  badgeText: {
+    fontSize: 12,
     color: colors.textMuted,
-    fontWeight: '500',
   },
   footer: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: 12,
-    paddingTop: spacing.sm,
-  },
-  footerText: {
-    fontSize: fontSize.caption,
-    color: '#CBD5E1',
+    fontSize: 11,
+    color: colors.placeholder,
     textAlign: 'center',
-    lineHeight: 18,
+    marginTop: 24,
+    lineHeight: 16,
   },
 })

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -35,16 +36,6 @@ export default function ProfessorReviewScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>DR</Text>
-        </View>
-      </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {/* Back link */}
@@ -85,10 +76,10 @@ export default function ProfessorReviewScreen({ navigation }: any) {
           </View>
           <Text style={styles.fileName}>Proyecto_Final_v2.pdf</Text>
           <View style={styles.fileActions}>
-            <TouchableOpacity style={styles.fileActionBtn}>
+            <TouchableOpacity style={styles.fileActionBtn} onPress={() => Alert.alert('Vista previa', 'Abriendo vista previa del documento...')}>
               <Ionicons name="search-outline" size={16} color={colors.textMuted} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.fileActionBtn}>
+            <TouchableOpacity style={styles.fileActionBtn} onPress={() => Alert.alert('Descargar', 'Descargando Proyecto_Final_v2.pdf...')}>
               <Ionicons name="download-outline" size={16} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
@@ -165,7 +156,7 @@ export default function ProfessorReviewScreen({ navigation }: any) {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.draftBtn} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.draftBtn} activeOpacity={0.7} onPress={() => navigation.goBack()}>
           <Text style={styles.draftBtnText}>GUARDAR BORRADOR</Text>
         </TouchableOpacity>
         <TouchableOpacity

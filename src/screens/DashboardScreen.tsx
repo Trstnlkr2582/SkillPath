@@ -12,10 +12,23 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
 import BottomNavBar from '../components/BottomNavBar'
+
 import { useAuth } from '../context/AuthContext'
 import { coursesService } from '../services/courses.service'
 import { progressService } from '../services/progress.service'
 import { Course, Progress } from '../types'
+
+const SKILLS = [
+  { label: 'Uú Design', level: 'Avanzado', pct: 80, color: colors.primary },
+  { label: 'React JS', level: 'Intermedio', pct: 55, color: colors.accentViolet },
+  { label: 'Data Analysis', level: 'Básico', pct: 35, color: colors.accentAmber },
+  { label: 'Agile Methodologies', level: 'Avanzado', pct: 78, color: colors.primary },
+]
+
+const TASKS = [
+  { time: '14:00 PM', title: 'Diseño de Interfaces Complejas', sub: 'Módulo 4: Sistemas de Diseño', action: 'Ir a la clase', urgent: false },
+  { time: '16:30 PM', title: 'React Avanzado: Hooks & Context', sub: 'Sesión en vivo con mentor', action: 'Unirse a un Zoom ↗', urgent: false },
+]
 
 export default function DashboardScreen({ navigation }: any) {
   const { user } = useAuth()
@@ -35,17 +48,9 @@ export default function DashboardScreen({ navigation }: any) {
 
   const overallPct = progressList.length
     ? Math.round(progressList.reduce((s, p) => s + p.completion_percentage, 0) / progressList.length)
-    : 0
-
-  const totalHours = progressList.reduce((s, p) => s + (p.total_study_hours ?? 0), 0)
-  const completedCourses = progressList.filter((p) => p.completed).length
-
-  const lastCourse = courses.find((c) =>
-    progressList.find((p) => p.course_id === c.id && !p.completed)
-  )
-  const lastProgress = lastCourse
-    ? progressList.find((p) => p.course_id === lastCourse.id)
-    : null
+    : 74
+  const totalHours = progressList.reduce((s, p) => s + (p.total_study_hours ?? 0), 0) || 128
+  const completedCourses = progressList.filter((p) => p.completed).length || 14
 
   const firstName = user?.name?.split(' ')[0] ?? 'Estudiante'
 
@@ -61,133 +66,127 @@ export default function DashboardScreen({ navigation }: any) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        <Text style={styles.brand}>SkillPath</Text>
-        <TouchableOpacity style={styles.notifBtn}>
-          <Ionicons name="notifications-outline" size={22} color={colors.textPrimary} />
-          <View style={styles.notifDot} />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Greeting */}
-        <View style={styles.greetingSection}>
-          <Text style={styles.greeting}>¡Bienvenido de nuevo, {firstName}!</Text>
+        <View style={styles.greeting}>
+          <Text style={styles.greetingTitle}>¡Bienvenido de nuevo, {firstName}!</Text>
           <Text style={styles.greetingSub}>
-            {overallPct > 0
-              ? `Has completado el ${overallPct}% de tus cursos. ¡Sigue así!`
-              : 'Explora el catálogo y comienza tu primer curso.'}
+            Has completado el {overallPct}% de tus objetivos semanales. ¡Sigue así!
           </Text>
         </View>
 
-        {/* Bento Grid */}
-        <View style={styles.bentoGrid}>
-
+        <View style={styles.content}>
           {/* Progreso General */}
-          <View style={styles.cardWide}>
-            <Text style={styles.cardLabel}>Progreso General</Text>
-            <Text style={styles.cardSublabel}>{courses.length} curso{courses.length !== 1 ? 's' : ''} inscrito{courses.length !== 1 ? 's' : ''}</Text>
-            <View style={styles.progressRow}>
-              <View style={styles.progressCircleWrapper}>
-                <View style={styles.progressCircle}>
-                  <Text style={styles.progressCircleValue}>{overallPct}%</Text>
-                  <Text style={styles.progressCircleCaption}>completado</Text>
-                </View>
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View>
+                <Text style={styles.cardTitle}>Progreso General</Text>
+                <Text style={styles.cardSub}>Ruta de Carrera: Product Manager</Text>
               </View>
-              <View style={styles.statsColumn}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statValue}>{Math.round(totalHours)}</Text>
-                  <Text style={styles.statLabel}>HORAS DE ESTUDIO</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statValue}>{completedCourses}</Text>
-                  <Text style={styles.statLabel}>CURSOS FINALIZADOS</Text>
-                </View>
+              <View style={styles.strakBadge}>
+                <Ionicons name="flame-outline" size={12} color={colors.successText} />
+                <Text style={styles.streakText}>12 Días de racha</Text>
               </View>
             </View>
+
+            <View style={styles.circleWrapper}>
+              <View style={styles.circle}>
+                <Text style={styles.circlePct}>{overallPct}%</Text>
+                <Text style={styles.circleLabel}>Completado</Text>
+              </View>
+            </View>
+
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{Math.round(totalHours)}</Text>
+                <Text style={styles.statLabel}>HORAS DE ESTUDIO</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{completedCourses}</Text>
+                <Text style={styles.statLabel}>CURSOS FINALIZADOS</Text>
+              </View>
+            </View>
+
             <View style={styles.progressTrack}>
               <View style={[styles.progressFill, { width: `${overallPct}%` as any }]} />
             </View>
           </View>
 
-          {/* Continuar curso */}
-          {lastCourse ? (
-            <View style={styles.cardRecommend}>
-              <Text style={styles.recommendLabel}>Continúa donde lo dejaste</Text>
-              <View style={styles.recommendCover}>
-                <Ionicons name="play-circle-outline" size={32} color={colors.white} />
+          {/* Recommended course */}
+          <View style={styles.recommendCard}>
+            <View style={styles.recommendImg}>
+              <View style={styles.recommendedBadge}>
+                <Text style={styles.recommendedBadgeText}>RECOMENDADO</Text>
               </View>
-              <Text style={styles.recommendTitle} numberOfLines={2}>{lastCourse.title}</Text>
-              <View style={styles.recommendBadge}>
-                <Text style={styles.recommendBadgeText}>{lastProgress?.completion_percentage ?? 0}% completado</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.recommendBtn}
-                onPress={() => navigation.navigate('CourseDetail', { courseId: lastCourse.id })}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.recommendBtnText}>Continuar</Text>
-                <Ionicons name="arrow-forward" size={14} color={colors.white} />
-              </TouchableOpacity>
+              <Ionicons name="laptop-outline" size={36} color="rgba(255,255,255,0.4)" />
             </View>
-          ) : (
-            <View style={styles.cardRecommend}>
-              <Text style={styles.recommendLabel}>Explora cursos</Text>
-              <View style={styles.recommendCover}>
-                <Ionicons name="book-outline" size={32} color={colors.white} />
-              </View>
-              <Text style={styles.recommendTitle}>Encuentra tu próximo curso</Text>
+            <View style={styles.recommendBody}>
+              <Text style={styles.recommendTitle}>Estrategia de Producto Digital</Text>
+              <Text style={styles.recommendSub}>Basado en tu interés por Uú y Negocios Digitales.</Text>
               <TouchableOpacity
                 style={styles.recommendBtn}
                 onPress={() => navigation.navigate('Catalog')}
                 activeOpacity={0.8}
               >
-                <Text style={styles.recommendBtnText}>Ver catálogo</Text>
-                <Ionicons name="arrow-forward" size={14} color={colors.white} />
+                <Text style={styles.recommendBtnText}>Ver detalles</Text>
               </TouchableOpacity>
             </View>
-          )}
-
-          {/* Quick Access */}
-          <View style={styles.quickRow}>
-            <TouchableOpacity
-              style={styles.quickCard}
-              onPress={() => navigation.navigate('Catalog')}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.quickIcon, { backgroundColor: colors.primaryLight }]}>
-                <Ionicons name="search-outline" size={20} color={colors.primary} />
-              </View>
-              <Text style={styles.quickText}>Explorar cursos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.quickCard}
-              onPress={() => navigation.navigate('Credentials')}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.quickIcon, { backgroundColor: colors.credentialBg }]}>
-                <Ionicons name="ribbon-outline" size={20} color={colors.accentViolet} />
-              </View>
-              <Text style={styles.quickText}>Mis logros</Text>
-            </TouchableOpacity>
           </View>
 
-          {/* Weekly streak */}
-          <View style={styles.streakCard}>
-            <View style={styles.streakLeft}>
-              <Text style={styles.streakLabel}>Racha semanal</Text>
-              <Text style={styles.streakDays}>14 días seguidos</Text>
-            </View>
-            <View style={[styles.streakIcon, { backgroundColor: colors.credentialBg }]}>
-              <Ionicons name="flame-outline" size={24} color={colors.accentViolet} />
-            </View>
+          {/* Mapa de Competencias */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Mapa de Competencias</Text>
+            {SKILLS.map((skill) => (
+              <View key={skill.label} style={styles.skillRow}>
+                <Text style={styles.skillLabel}>{skill.label}</Text>
+                <View style={styles.skillBarWrapper}>
+                  <View style={[styles.skillBarFill, { width: `${skill.pct}%` as any, backgroundColor: skill.color }]} />
+                </View>
+                <Text style={[styles.skillLevel, { color: skill.color }]}>{skill.level}</Text>
+              </View>
+            ))}
           </View>
 
+          {/* Próximos para hoy */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Próximos para hoy</Text>
+            {TASKS.map((task, i) => (
+              <View key={i} style={[styles.taskRow, i > 0 && styles.taskRowBorder]}>
+                <View style={styles.taskIcon}>
+                  <Ionicons name="time-outline" size={16} color={colors.textMuted} />
+                </View>
+                <View style={styles.taskInfo}>
+                  <Text style={styles.taskTitle}>{task.title}</Text>
+                  <Text style={styles.taskSub}>{task.sub}</Text>
+                  <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Lesson')}>
+                    <Text style={styles.taskLink}>{task.action}</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.taskTime}>{task.time}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Achievement banner */}
+          <View style={styles.achievementBanner}>
+            <View style={styles.achievementIcon}>
+              <Ionicons name="trophy-outline" size={20} color="#C8B400" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.achievementTitle}>¡Casi llegas al nivel 5!</Text>
+              <Text style={styles.achievementSub}>Completa 2 tareas más para obtener tu nueva certificación.</Text>
+            </View>
+          </View>
         </View>
 
-        <View style={{ height: spacing.lg }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
+
+      {/* FAB */}
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => navigation.navigate('Catalog')}>
+        <Ionicons name="add" size={26} color={colors.white} />
+      </TouchableOpacity>
 
       <BottomNavBar activeTab="Dashboard" navigation={navigation} />
     </SafeAreaView>
@@ -196,7 +195,7 @@ export default function DashboardScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surface },
-  topBar: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -206,142 +205,156 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  brand: { fontSize: 20, fontWeight: '700', color: colors.primary },
-  notifBtn: { padding: spacing.xs, position: 'relative' },
-  notifDot: {
-    position: 'absolute',
-    top: spacing.xs,
-    right: spacing.xs,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.accentAmber,
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.avatarBg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  avatarText: { fontSize: 13, fontWeight: '600', color: colors.avatarText },
   scroll: { flex: 1 },
-  greetingSection: {
+  greeting: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
     paddingBottom: spacing.md,
+    backgroundColor: colors.white,
   },
-  greeting: { fontSize: fontSize.headingLg, fontWeight: '600', color: colors.textPrimary, marginBottom: 6 },
-  greetingSub: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 22 },
-  bentoGrid: { paddingHorizontal: spacing.md, gap: spacing.sm },
-  cardWide: {
+  greetingTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary, marginBottom: 4 },
+  greetingSub: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 20 },
+  content: { padding: spacing.md, gap: spacing.sm },
+  card: {
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
+    gap: spacing.sm,
   },
-  cardLabel: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary, marginBottom: 4 },
-  cardSublabel: { fontSize: fontSize.bodySm, color: colors.textMuted, marginBottom: spacing.md },
-  progressRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
-  progressCircleWrapper: { alignItems: 'center', justifyContent: 'center' },
-  progressCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+  cardHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  cardTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
+  cardSub: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
+  strakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.activeBg,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  streakText: { fontSize: 11, fontWeight: '500', color: colors.successText },
+  circleWrapper: { alignItems: 'center', paddingVertical: spacing.sm },
+  circle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     borderWidth: 8,
     borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressCircleValue: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.primary },
-  progressCircleCaption: { fontSize: 9, color: colors.textMuted, textAlign: 'center' },
-  statsColumn: { flex: 1, gap: spacing.sm },
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    justifyContent: 'center',
-  },
-  statValue: { fontSize: fontSize.headingMd, fontWeight: '500', color: colors.primary },
-  statLabel: { fontSize: 10, color: colors.textMuted, fontWeight: '500', marginTop: 2 },
-  progressTrack: {
-    height: 6,
-    backgroundColor: colors.border,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 4,
-  },
-  cardRecommend: {
+  circlePct: { fontSize: fontSize.headingMd, fontWeight: '700', color: colors.primary },
+  circleLabel: { fontSize: 10, color: colors.textMuted },
+  statRow: { flexDirection: 'row', alignItems: 'center' },
+  statItem: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm },
+  statDivider: { width: 1, height: 40, backgroundColor: colors.border },
+  statValue: { fontSize: 32, fontWeight: '700', color: colors.primary },
+  statLabel: { fontSize: 10, fontWeight: '600', color: colors.textMuted, letterSpacing: 0.5, textAlign: 'center' },
+  progressTrack: { height: 6, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 4 },
+  recommendCard: {
     backgroundColor: colors.primaryDark,
     borderRadius: radius.lg,
-    padding: spacing.md,
+    overflow: 'hidden',
   },
-  recommendLabel: { fontSize: fontSize.caption, fontWeight: '500', color: 'rgba(255,255,255,0.6)', marginBottom: spacing.sm },
-  recommendCover: {
-    width: '100%',
-    height: 80,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: radius.md,
+  recommendImg: {
+    height: 120,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
+    position: 'relative',
   },
-  recommendTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.white, marginBottom: spacing.sm },
-  recommendBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.progressBg,
-    paddingHorizontal: 10,
+  recommendedBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: colors.accentAmber,
+    paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 20,
-    marginBottom: spacing.sm,
+    borderRadius: 4,
   },
-  recommendBadgeText: { fontSize: fontSize.caption, fontWeight: '500', color: colors.progressText },
+  recommendedBadgeText: { fontSize: 9, fontWeight: '700', color: colors.white, letterSpacing: 0.5 },
+  recommendBody: { padding: spacing.md, gap: 6 },
+  recommendTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.white },
+  recommendSub: { fontSize: fontSize.bodySm, color: 'rgba(255,255,255,0.65)' },
   recommendBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
     alignSelf: 'flex-start',
     backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: radius.md,
+    marginTop: 4,
   },
   recommendBtnText: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.white },
-  quickRow: { flexDirection: 'row', gap: spacing.sm },
-  quickCard: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  quickIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+  sectionTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
+  skillRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  skillLabel: { fontSize: 12, color: colors.textPrimary, width: 120 },
+  skillBarWrapper: { flex: 1, height: 6, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
+  skillBarFill: { height: '100%', borderRadius: 4 },
+  skillLevel: { fontSize: 11, fontWeight: '500', width: 68, textAlign: 'right' },
+  taskRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 8 },
+  taskRowBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+  taskIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
-  quickText: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textPrimary, textAlign: 'center' },
-  streakCard: {
+  taskInfo: { flex: 1 },
+  taskTitle: { fontSize: 13, fontWeight: '500', color: colors.textPrimary, marginBottom: 2 },
+  taskSub: { fontSize: 11, color: colors.textMuted },
+  taskLink: { fontSize: 12, color: colors.primary, fontWeight: '500', marginTop: 4 },
+  taskTime: { fontSize: 11, color: colors.textMuted, fontWeight: '500' },
+  achievementBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.white,
+    gap: 12,
+    backgroundColor: colors.credentialBg,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.md,
   },
-  streakLeft: { gap: 4 },
-  streakLabel: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  streakDays: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.accentViolet },
-  streakIcon: {
-    width: 48,
-    height: 48,
+  achievementIcon: {
+    width: 40,
+    height: 40,
     borderRadius: radius.md,
+    backgroundColor: 'rgba(107,92,184,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  achievementTitle: { fontSize: 13, fontWeight: '600', color: colors.accentViolet, marginBottom: 2 },
+  achievementSub: { fontSize: 11, color: colors.textMuted, lineHeight: 16 },
+  fab: {
+    position: 'absolute',
+    bottom: 92,
+    right: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
 })

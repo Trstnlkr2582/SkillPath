@@ -15,11 +15,38 @@ import AdminBottomNavBar from '../components/AdminBottomNavBar'
 
 type FilterType = 'Todos' | 'Estudiantes' | 'Profesores'
 
+const STATS = [
+  {
+    title: 'Total usuarios',
+    value: '1,284',
+    sub: '+12% este mes',
+    subColor: colors.activeText,
+    icon: 'people-outline',
+    iconBg: colors.primaryLight,
+  },
+  {
+    title: 'Usuarios activos',
+    value: '856',
+    sub: '67% de la base total',
+    subColor: colors.textMuted,
+    icon: 'flash-outline',
+    iconBg: colors.activeBg,
+  },
+  {
+    title: 'Nuevos (hoy)',
+    value: '24',
+    sub: '± Récord diario',
+    subColor: colors.textMuted,
+    icon: 'time-outline',
+    iconBg: colors.progressBg,
+  },
+]
+
 const USERS = [
-  { name: 'Ana Martínez', email: 'ana.martinez@skillpat', role: 'Estudiante', initials: 'AM' },
-  { name: 'Carlos Ruiz', email: 'c.ruiz@skillpath.edu', role: 'Profesor', initials: 'CR' },
-  { name: 'Elena Soler', email: 'elena.soler@skillpath.', role: 'Estudiante', initials: 'ES' },
-  { name: 'Roberto Gómez', email: 'r.gomez@skillpath.edu', role: 'Estudiante', initials: 'RG' },
+  { name: 'Ana Martínez', email: 'ana.martinez@skillpat...', role: 'Estudiante', initials: 'AM', bg: '#B8D9D0' },
+  { name: 'Carlos Ruiz', email: 'c.ruiz@skillpath.edu', role: 'Profesor', initials: 'CR', bg: colors.credentialBg },
+  { name: 'Elena Soler', email: 'elena.soler@skillpath...', role: 'Estudiante', initials: 'ES', bg: colors.progressBg },
+  { name: 'Roberto Gómez', email: 'r.gomez@skillpath.edu', role: 'Estudiante', initials: 'RG', bg: '#D6E4FF' },
 ]
 
 export default function AdminUsersScreen({ navigation }: any) {
@@ -40,51 +67,31 @@ export default function AdminUsersScreen({ navigation }: any) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Ionicons name="menu-outline" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>AD</Text>
-        </View>
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Page title */}
         <View style={styles.titleSection}>
-          <View>
-            <Text style={styles.pageTitle}>Gestión de Usuarios</Text>
-            <Text style={styles.pageSub}>Administra los roles y el acceso de la comunidad educativa</Text>
-          </View>
-          <TouchableOpacity style={styles.addBtn} activeOpacity={0.85}>
-            <Ionicons name="person-add-outline" size={14} color={colors.white} />
+          <Text style={styles.pageTitle}>Gestión de Usuarios</Text>
+          <Text style={styles.pageSub}>Administra los roles y el acceso de la comunidad educativa.</Text>
+          <TouchableOpacity style={styles.addBtn} activeOpacity={0.85} onPress={() => navigation.navigate('AdminAddUser')}>
+            <Ionicons name="person-add-outline" size={16} color={colors.white} />
             <Text style={styles.addBtnText}>Añadir Usuario</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Stats */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>1,284</Text>
-            <Text style={styles.statLabel}>Total usuarios</Text>
-            <View style={styles.statDelta}>
-              <Text style={styles.statDeltaText}>+21% este mes</Text>
+        <View style={styles.statsSection}>
+          {STATS.map((s, i) => (
+            <View key={i} style={styles.statCard}>
+              <View style={styles.statLeft}>
+                <Text style={styles.statTitle}>{s.title}</Text>
+                <Text style={styles.statValue}>{s.value}</Text>
+                <Text style={[styles.statSub, { color: s.subColor }]}>{s.sub}</Text>
+              </View>
+              <View style={[styles.statIconBox, { backgroundColor: s.iconBg }]}>
+                <Ionicons name={s.icon as any} size={22} color={colors.successText} />
+              </View>
             </View>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>856</Text>
-            <Text style={styles.statLabel}>Usuarios activos</Text>
-            <Text style={styles.statSub}>67% de la base total</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>24</Text>
-            <Text style={styles.statLabel}>Nuevos (hoy)</Text>
-            <Text style={[styles.statSub, { color: colors.primary }]}>Récord diario</Text>
-          </View>
+          ))}
         </View>
 
-        {/* Search */}
         <View style={styles.searchSection}>
           <View style={styles.searchBar}>
             <Ionicons name="search-outline" size={16} color={colors.textMuted} />
@@ -98,7 +105,6 @@ export default function AdminUsersScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Filter tabs */}
         <View style={styles.filterTabs}>
           {(['Todos', 'Estudiantes', 'Profesores'] as FilterType[]).map((f) => (
             <TouchableOpacity
@@ -112,7 +118,6 @@ export default function AdminUsersScreen({ navigation }: any) {
           ))}
         </View>
 
-        {/* User table */}
         <View style={styles.tableSection}>
           <View style={styles.tableHeader}>
             <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Usuario</Text>
@@ -121,23 +126,16 @@ export default function AdminUsersScreen({ navigation }: any) {
           {filtered.map((user, i) => (
             <View key={i} style={[styles.tableRow, i % 2 === 0 && styles.tableRowAlt]}>
               <View style={[styles.userCell, { flex: 2 }]}>
-                <View style={styles.userAvatar}>
+                <View style={[styles.userAvatar, { backgroundColor: user.bg }]}>
                   <Text style={styles.userAvatarText}>{user.initials}</Text>
                 </View>
-                <View>
-                  <Text style={styles.userName}>{user.name}</Text>
-                  <Text style={[
-                    styles.userRole,
-                    user.role === 'Profesor' && styles.userRoleProf,
-                  ]}>{user.role}</Text>
-                </View>
+                <Text style={styles.userName}>{user.name}</Text>
               </View>
               <Text style={[styles.userEmail, { flex: 2 }]} numberOfLines={1}>{user.email}</Text>
             </View>
           ))}
         </View>
 
-        {/* Pagination */}
         <View style={styles.pagination}>
           <Text style={styles.paginationInfo}>
             Mostrando 1 a {filtered.length} de 1,284 usuarios
@@ -146,7 +144,7 @@ export default function AdminUsersScreen({ navigation }: any) {
             <TouchableOpacity
               style={[styles.pageBtn, page === 1 && styles.pageBtnDisabled]}
               disabled={page === 1}
-              onPress={() => setPage(p => Math.max(1, p - 1))}
+              onPress={() => setPage((p) => Math.max(1, p - 1))}
             >
               <Ionicons name="chevron-back" size={14} color={page === 1 ? colors.border : colors.textMuted} />
             </TouchableOpacity>
@@ -159,17 +157,16 @@ export default function AdminUsersScreen({ navigation }: any) {
                 <Text style={[styles.pageBtnText, page === n && styles.pageBtnTextActive]}>{n}</Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.pageBtn} onPress={() => setPage(p => p + 1)}>
+            <TouchableOpacity style={styles.pageBtn} onPress={() => setPage((p) => p + 1)}>
               <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={{ height: spacing.lg }} />
+        <View style={{ height: spacing.xl }} />
       </ScrollView>
 
-      {/* FAB */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => navigation.navigate('AdminAddUser')}>
         <Ionicons name="add" size={24} color={colors.white} />
       </TouchableOpacity>
 
@@ -187,67 +184,63 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 56,
     backgroundColor: colors.white,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerBtn: { padding: spacing.xs },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
   avatar: {
     width: 34,
     height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.avatarBg,
+    borderRadius: 8,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.avatarText },
+  avatarText: { fontSize: 13, fontWeight: '700', color: colors.successText },
   scroll: { flex: 1 },
   titleSection: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
     gap: spacing.sm,
   },
   pageTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
-  pageSub: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2, maxWidth: 200 },
+  pageSub: { fontSize: fontSize.caption, color: colors.textMuted, lineHeight: 18 },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 8,
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: colors.primaryDark,
     borderRadius: radius.md,
+    height: 44,
   },
-  addBtnText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.white },
-  statsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
+  addBtnText: { fontSize: fontSize.body, fontWeight: '600', color: colors.white },
+  statsSection: { paddingHorizontal: spacing.md, gap: spacing.sm },
   statCard: {
-    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.sm,
-    gap: 2,
+    padding: spacing.md,
   },
-  statValue: { fontSize: fontSize.headingMd, fontWeight: '700', color: colors.textPrimary },
-  statLabel: { fontSize: fontSize.caption, color: colors.textMuted },
-  statDelta: {
-    backgroundColor: colors.activeBg,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: radius.sm,
-    alignSelf: 'flex-start',
+  statLeft: { flex: 1, gap: 2 },
+  statTitle: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textMuted },
+  statValue: { fontSize: 28, fontWeight: '700', color: colors.textPrimary },
+  statSub: { fontSize: fontSize.caption },
+  statIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  statDeltaText: { fontSize: 9, fontWeight: '600', color: colors.activeText },
-  statSub: { fontSize: fontSize.caption, color: colors.textMuted },
   searchSection: { paddingHorizontal: spacing.md, marginTop: spacing.md },
   searchBar: {
     flexDirection: 'row',
@@ -275,9 +268,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  filterTabActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+  filterTabActive: { backgroundColor: colors.primaryDark, borderColor: colors.primaryDark },
   filterTabText: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textMuted },
-  filterTabTextActive: { color: colors.primary },
+  filterTabTextActive: { color: colors.white, fontWeight: '600' },
   tableSection: {
     marginHorizontal: spacing.md,
     marginTop: spacing.sm,
@@ -294,26 +287,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   tableHeaderCell: { fontSize: fontSize.caption, fontWeight: '600', color: colors.textMuted },
-  tableRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
+  tableRow: { flexDirection: 'row', paddingHorizontal: spacing.sm, paddingVertical: 12, alignItems: 'center' },
   tableRowAlt: { backgroundColor: '#FAFCFB' },
   userCell: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   userAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.avatarBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  userAvatarText: { fontSize: fontSize.caption, fontWeight: '600', color: colors.avatarText },
+  userAvatarText: { fontSize: fontSize.caption, fontWeight: '600', color: colors.successText },
   userName: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textPrimary },
-  userRole: { fontSize: fontSize.caption, color: colors.primary },
-  userRoleProf: { color: colors.accentViolet },
   userEmail: { fontSize: fontSize.caption, color: colors.textMuted },
   pagination: {
     paddingHorizontal: spacing.md,
@@ -333,12 +318,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   pageBtnDisabled: { borderColor: colors.surface },
-  pageBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  pageBtnActive: { backgroundColor: colors.primaryDark, borderColor: colors.primaryDark },
   pageBtnText: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textMuted },
   pageBtnTextActive: { color: colors.white },
   fab: {
     position: 'absolute',
-    bottom: 68,
+    bottom: 72,
     right: spacing.md,
     width: 50,
     height: 50,

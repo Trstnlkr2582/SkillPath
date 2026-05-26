@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -14,14 +15,14 @@ import AdminBottomNavBar from '../components/AdminBottomNavBar'
 
 const KPI_CARDS = [
   { label: 'INSCRIPCIONES TOTALES', value: '12.4k', delta: '+14%', pos: true },
-  { label: 'TASA DE FINALIZACIÓN', value: '68.2%', delta: '+3.7%', pos: true },
+  { label: 'TASA DE FINALIZACIÓN', value: '68.2%', delta: '+3.1%', pos: true },
   { label: 'ESTUDIANTES ACTIVOS', value: '4,892', delta: '-2%', pos: false },
-  { label: 'CERTIFICACIONES', value: '2,105', delta: '+21%', pos: true },
+  { label: 'CERTIFICACIONES', value: '2,105', delta: '+22%', pos: true, valueColor: colors.accentViolet },
 ]
 
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']
-const BAR_HEIGHTS = [55, 70, 45, 85, 65, 90]
-const BAR_HEIGHTS_2022 = [40, 55, 35, 60, 50, 70]
+const BAR_2024 = [55, 70, 45, 85, 65, 90]
+const BAR_2023 = [40, 55, 35, 60, 50, 70]
 
 const PROGRESS_ITEMS = [
   { label: 'Completados', pct: 68, color: colors.primary },
@@ -30,53 +31,45 @@ const PROGRESS_ITEMS = [
 ]
 
 const TOP_COURSES = [
-  { title: 'Desarrollo Web Fullstack', instructor: 'Dra. Helena Rivas' },
-  { title: 'Inteligencia Artificial Aplicada', instructor: 'Mtrs. Jorge Linares' },
-  { title: 'Finanzas para Negocios Digitales', instructor: 'Lic. Sofía Chan' },
+  { title: 'Desarrollo Web Fullstack', instructor: 'Dra. Helena Rivas', icon: 'code-slash-outline' },
+  { title: 'Inteligencia Artificial Aplicada', instructor: 'Mtro. Jorge Linares', icon: 'hardware-chip-outline' },
+  { title: 'Finanzas para Negocios Digitales', instructor: 'Lic. Sofía Chan', icon: 'cash-outline' },
 ]
 
 export default function AdminReportsScreen({ navigation }: any) {
-  const [period, setPeriod] = useState('Últimos 30 días')
+  const [period] = useState('Últimos 30 días')
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Ionicons name="menu-outline" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>AD</Text>
-        </View>
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Page title */}
         <View style={styles.titleSection}>
           <Text style={styles.pageTitle}>Analítica Institucional</Text>
-          <Text style={styles.pageSub}>Resumen avanzado del rendimiento académico e operativo.</Text>
+          <Text style={styles.pageSub}>Resumen avanzado del rendimiento académico y operativo.</Text>
         </View>
 
-        {/* Period selector + export */}
         <View style={styles.controlsRow}>
-          <TouchableOpacity style={styles.periodBtn}>
+          <TouchableOpacity style={styles.periodBtn} onPress={() => Alert.alert('Período', 'Selecciona el período del reporte.')}>
+            <Ionicons name="calendar-outline" size={14} color={colors.textMuted} />
             <Text style={styles.periodBtnText}>{period}</Text>
             <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.exportBtn} activeOpacity={0.85}>
-            <Ionicons name="download-outline" size={14} color={colors.white} />
+          <TouchableOpacity style={styles.exportBtn} activeOpacity={0.85} onPress={() => Alert.alert('Exportar', 'Generando reporte PDF...')}>
+            <Ionicons name="arrow-up-outline" size={14} color={colors.primary} />
             <Text style={styles.exportBtnText}>Exportar PDF</Text>
           </TouchableOpacity>
         </View>
 
-        {/* KPI cards */}
-        <View style={styles.kpiGrid}>
+        <View style={styles.kpiList}>
           {KPI_CARDS.map((kpi, i) => (
             <View key={i} style={styles.kpiCard}>
-              <Text style={styles.kpiLabel}>{kpi.label}</Text>
-              <Text style={styles.kpiValue}>{kpi.value}</Text>
+              <View style={styles.kpiLeft}>
+                <Text style={styles.kpiLabel}>{kpi.label}</Text>
+                <Text style={[styles.kpiValue, kpi.valueColor ? { color: kpi.valueColor } : undefined]}>
+                  {kpi.value}
+                </Text>
+              </View>
               <View style={[styles.kpiDelta, kpi.pos ? styles.deltaPos : styles.deltaNeg]}>
                 <Text style={[styles.kpiDeltaText, kpi.pos ? styles.deltaPosText : styles.deltaNegText]}>
                   {kpi.delta}
@@ -86,7 +79,6 @@ export default function AdminReportsScreen({ navigation }: any) {
           ))}
         </View>
 
-        {/* Monthly chart */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Inscripción Mensual</Text>
@@ -97,7 +89,7 @@ export default function AdminReportsScreen({ navigation }: any) {
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: colors.border }]} />
-                <Text style={styles.legendText}>2022</Text>
+                <Text style={styles.legendText}>2023</Text>
               </View>
             </View>
           </View>
@@ -105,8 +97,8 @@ export default function AdminReportsScreen({ navigation }: any) {
             {MONTHS.map((month, i) => (
               <View key={i} style={styles.barGroup}>
                 <View style={styles.barsWrapper}>
-                  <View style={[styles.bar, { height: BAR_HEIGHTS_2022[i] * 0.7, backgroundColor: colors.border }]} />
-                  <View style={[styles.bar, { height: BAR_HEIGHTS[i] * 0.7, backgroundColor: colors.primary }]} />
+                  <View style={[styles.bar, { height: BAR_2023[i] * 0.65, backgroundColor: colors.border }]} />
+                  <View style={[styles.bar, { height: BAR_2024[i] * 0.65, backgroundColor: colors.primary }]} />
                 </View>
                 <Text style={styles.barLabel}>{month}</Text>
               </View>
@@ -114,7 +106,6 @@ export default function AdminReportsScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Progress state */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Estado de Progreso</Text>
           <View style={styles.progressList}>
@@ -132,25 +123,24 @@ export default function AdminReportsScreen({ navigation }: any) {
           </View>
           <View style={styles.graduatesRow}>
             <View style={styles.graduateAvatars}>
-              {['A', 'B', 'C'].map((l, i) => (
+              {['A', 'B'].map((l, i) => (
                 <View key={i} style={[styles.gradAvatar, { marginLeft: i > 0 ? -8 : 0 }]}>
                   <Text style={styles.gradAvatarText}>{l}</Text>
                 </View>
               ))}
               <View style={[styles.gradAvatar, { marginLeft: -8, backgroundColor: colors.surface }]}>
-                <Text style={styles.gradAvatarMore}>+14</Text>
+                <Text style={styles.gradAvatarMore}>+12</Text>
               </View>
             </View>
             <Text style={styles.graduatesLabel}>Graduados hoy</Text>
           </View>
         </View>
 
-        {/* Top courses */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Ranking de Cursos Populares</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAll}>Ver todos</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AdminCourses')}>
+              <Text style={styles.seeAll}>Ver todos ›</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.courseTable}>
@@ -160,13 +150,13 @@ export default function AdminReportsScreen({ navigation }: any) {
             </View>
             {TOP_COURSES.map((c, i) => (
               <View key={i} style={[styles.tableRow, i % 2 === 0 && styles.tableRowAlt]}>
-                <View style={[styles.courseRankCell, { flex: 2 }]}>
-                  <View style={styles.courseRankIcon}>
-                    <Ionicons name="book-outline" size={14} color={colors.primary} />
+                <View style={[styles.courseCell, { flex: 2 }]}>
+                  <View style={styles.courseIcon}>
+                    <Ionicons name={c.icon as any} size={14} color={colors.primary} />
                   </View>
-                  <Text style={styles.courseRankTitle} numberOfLines={1}>{c.title}</Text>
+                  <Text style={styles.courseTitle} numberOfLines={1}>{c.title}</Text>
                 </View>
-                <Text style={[styles.courseRankInstructor, { flex: 1.5 }]} numberOfLines={1}>{c.instructor}</Text>
+                <Text style={[styles.instructorText, { flex: 1.5 }]} numberOfLines={1}>{c.instructor}</Text>
               </View>
             ))}
           </View>
@@ -189,24 +179,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 56,
     backgroundColor: colors.white,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerBtn: { padding: spacing.xs },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
   avatar: {
     width: 34,
     height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.avatarBg,
+    borderRadius: 8,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.avatarText },
+  avatarText: { fontSize: 13, fontWeight: '700', color: colors.successText },
   scroll: { flex: 1 },
-  titleSection: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.xs },
+  titleSection: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.xs, gap: 4 },
   pageTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
-  pageSub: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
+  pageSub: { fontSize: fontSize.caption, color: colors.textMuted, lineHeight: 18 },
   controlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -232,29 +223,27 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
     borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
   },
-  exportBtnText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.white },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: spacing.md,
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-  },
+  exportBtnText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.primary },
+  kpiList: { paddingHorizontal: spacing.md, marginTop: spacing.sm, gap: spacing.sm },
   kpiCard: {
-    width: '47%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.sm + 2,
-    gap: 4,
+    padding: spacing.md,
   },
+  kpiLeft: { flex: 1, gap: 4 },
   kpiLabel: { fontSize: fontSize.caption, fontWeight: '600', color: colors.textMuted, letterSpacing: 0.3 },
-  kpiValue: { fontSize: fontSize.headingMd, fontWeight: '700', color: colors.textPrimary },
-  kpiDelta: { alignSelf: 'flex-start', paddingHorizontal: 6, paddingVertical: 2, borderRadius: radius.sm },
+  kpiValue: { fontSize: 28, fontWeight: '700', color: colors.textPrimary },
+  kpiDelta: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.sm },
   deltaPos: { backgroundColor: colors.activeBg },
   deltaNeg: { backgroundColor: colors.errorBg },
   kpiDeltaText: { fontSize: fontSize.caption, fontWeight: '600' },
@@ -316,8 +305,8 @@ const styles = StyleSheet.create({
   tableHeaderCell: { fontSize: fontSize.caption, fontWeight: '600', color: colors.textMuted },
   tableRow: { flexDirection: 'row', paddingHorizontal: spacing.sm, paddingVertical: 10, alignItems: 'center' },
   tableRowAlt: { backgroundColor: '#FAFCFB' },
-  courseRankCell: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  courseRankIcon: {
+  courseCell: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  courseIcon: {
     width: 26,
     height: 26,
     borderRadius: radius.sm,
@@ -325,6 +314,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  courseRankTitle: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textPrimary, flex: 1 },
-  courseRankInstructor: { fontSize: fontSize.caption, color: colors.textMuted },
+  courseTitle: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textPrimary, flex: 1 },
+  instructorText: { fontSize: fontSize.caption, color: colors.textMuted },
 })

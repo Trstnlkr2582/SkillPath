@@ -7,56 +7,45 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
 import ProfessorBottomNavBar from '../components/ProfessorBottomNavBar'
 
-const NOTIFY_OPTIONS = [
-  { label: 'Enviar notificación por email a todos los estudiantes', key: 'email' },
-  { label: 'Fijar anuncio al inicio del curso', key: 'pin' },
+const TIPS = [
+  'Sé directo y utiliza un lenguaje claro para evitar confusiones.',
+  'Divide los mensajes largos con párrafos o listas de puntos.',
+  'Resalta las fechas importantes en negrita para llamar la atención.',
+  'Asegúrate de que los adjuntos sean accesibles para todos los dispositivos.',
 ]
 
 export default function ProfessorAnnouncementScreen({ navigation }: any) {
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
-  const [fileAttached, setFileAttached] = useState(false)
-  const [notifyChecked, setNotifyChecked] = useState<Record<string, boolean>>({ email: true, pin: false })
-
-  const toggleNotify = (key: string) =>
-    setNotifyChecked((prev) => ({ ...prev, [key]: !prev[key] }))
+  const [notifyEmail, setNotifyEmail] = useState(false)
+  const [pinAnnouncement, setPinAnnouncement] = useState(false)
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>DR</Text>
-        </View>
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View style={styles.titleSection}>
-          <Text style={styles.pageTitle}>Nuevo Anuncio Grupal</Text>
-        </View>
+        {/* Form card */}
+        <View style={styles.formCard}>
+          <Text style={styles.formTitle}>Nuevo Anuncio Grupal</Text>
 
-        <View style={styles.card}>
-          {/* Course selector */}
+          {/* Curso / Cohorte */}
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>Curso / Cohorte</Text>
-            <TouchableOpacity style={styles.selectWrapper} activeOpacity={0.7}>
-              <Text style={styles.selectText}>Desarrollo Web Full Stack – Cohorte, 2024-A</Text>
-              <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
+            <TouchableOpacity style={styles.selectField} activeOpacity={0.7}>
+              <Text style={styles.selectText}>Desarrollo Web Full Stack - Cohorte 2024-A</Text>
+              <Ionicons name="chevron-down" size={16} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
-          {/* Subject */}
+          {/* Asunto */}
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>Asunto</Text>
             <View style={styles.inputWrapper}>
@@ -64,89 +53,85 @@ export default function ProfessorAnnouncementScreen({ navigation }: any) {
                 style={styles.input}
                 value={subject}
                 onChangeText={setSubject}
-                placeholder="Ej. Actualización de la fecha de entrega del proyecto."
+                placeholder="Ej: Actualización de la fecha de entrega del proyecto"
                 placeholderTextColor={colors.placeholder}
               />
             </View>
           </View>
 
-          {/* Body */}
+          {/* Cuerpo */}
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>Cuerpo del anuncio</Text>
-            {/* Toolbar */}
-            <View style={styles.editorToolbar}>
-              {['B', 'I', '≡', '•', '🔗', '📷'].map((tool, i) => (
-                <TouchableOpacity key={i} style={styles.toolBtn}>
-                  <Text style={styles.toolBtnText}>{tool}</Text>
-                </TouchableOpacity>
-              ))}
+            <View style={styles.richTextContainer}>
+              <View style={styles.toolbar}>
+                {['bold', 'italic', 'list', 'link', 'image'].map((tool) => (
+                  <TouchableOpacity key={tool} style={styles.toolBtn} activeOpacity={0.7}>
+                    <Ionicons
+                      name={tool === 'bold' ? 'text' : tool === 'italic' ? 'text-outline' : tool === 'list' ? 'list-outline' : tool === 'link' ? 'link-outline' : 'image-outline'}
+                      size={16}
+                      color={colors.textMuted}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TextInput
+                style={styles.bodyInput}
+                value={body}
+                onChangeText={setBody}
+                placeholder="Escribe tu mensaje aquí..."
+                placeholderTextColor={colors.placeholder}
+                multiline
+                numberOfLines={6}
+                textAlignVertical="top"
+              />
             </View>
-            <TextInput
-              style={styles.textarea}
-              value={body}
-              onChangeText={setBody}
-              placeholder="Escribe tu mensaje aquí..."
-              placeholderTextColor={colors.placeholder}
-              multiline
-              numberOfLines={6}
-              textAlignVertical="top"
-            />
           </View>
 
-          {/* File attachment */}
-          <TouchableOpacity
-            style={[styles.dropZone, fileAttached && styles.dropZoneAttached]}
-            onPress={() => setFileAttached(!fileAttached)}
-            activeOpacity={0.8}
-          >
-            {fileAttached ? (
-              <>
-                <Ionicons name="document-text" size={22} color={colors.primary} />
-                <Text style={styles.dropZoneAttachedTitle}>archivo_adjunto.pdf</Text>
-              </>
-            ) : (
-              <>
-                <Ionicons name="attach-outline" size={22} color={colors.textMuted} />
-                <Text style={styles.dropZoneTitle}>Arrastra tus archivos aquí o selecciona desde tu equipo</Text>
-                <Text style={styles.dropZoneSub}>PDF, DOCX, ZIP (Máx. 10MB)</Text>
-              </>
-            )}
+          {/* File drop zone */}
+          <TouchableOpacity style={styles.dropZone} activeOpacity={0.8} onPress={() => Alert.alert('Adjuntar', 'Selecciona un archivo para adjuntar.')}>
+            <Ionicons name="cloud-upload-outline" size={28} color={colors.textMuted} />
+            <Text style={styles.dropText}>Arrastra tus archivos aquí o selecciona desde tu equipo</Text>
+            <Text style={styles.dropSub}>PDF, DOCÚ, ZIP (Máx. 10MB)</Text>
           </TouchableOpacity>
 
-          {/* Notify options */}
-          <View style={styles.notifySection}>
-            {NOTIFY_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.key}
-                style={styles.notifyRow}
-                onPress={() => toggleNotify(opt.key)}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.checkbox, notifyChecked[opt.key] && styles.checkboxActive]}>
-                  {notifyChecked[opt.key] && (
-                    <Ionicons name="checkmark" size={10} color={colors.white} />
-                  )}
-                </View>
-                <Text style={styles.notifyLabel}>{opt.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {/* Checkboxes */}
+          <TouchableOpacity style={styles.checkRow} onPress={() => setNotifyEmail(!notifyEmail)} activeOpacity={0.7}>
+            <View style={[styles.checkbox, notifyEmail && styles.checkboxActive]}>
+              {notifyEmail && <Ionicons name="checkmark" size={10} color={colors.white} />}
+            </View>
+            <Text style={styles.checkLabel}>Enviar notificación por email a todos los estudiantes</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.checkRow} onPress={() => setPinAnnouncement(!pinAnnouncement)} activeOpacity={0.7}>
+            <View style={[styles.checkbox, pinAnnouncement && styles.checkboxActive]}>
+              {pinAnnouncement && <Ionicons name="checkmark" size={10} color={colors.white} />}
+            </View>
+            <Text style={styles.checkLabel}>Fijar anuncio al inicio del curso</Text>
+          </TouchableOpacity>
+
+          {/* Buttons */}
+          <TouchableOpacity style={styles.draftBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
+            <Text style={styles.draftBtnText}>Guardar Borrador</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.publishBtn}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('ProfessorDashboard')}
+          >
+            <Text style={styles.publishBtnText}>Publicar Anuncio</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Tips */}
+        {/* Tips card */}
         <View style={styles.tipsCard}>
           <View style={styles.tipsHeader}>
-            <Ionicons name="location-outline" size={14} color={colors.primary} />
+            <Ionicons name="bulb-outline" size={16} color={colors.successText} />
             <Text style={styles.tipsTitle}>Consejos rápidos</Text>
           </View>
-          {[
-            'Sé directo y utiliza un lenguaje claro para evitar confusiones.',
-            'Divide los mensajes largos con párrafos o listas de puntos.',
-            'Resalta las fechas importantes en negrita para llamar la atención.',
-            'Asegúrate de que los adjuntos sean accesibles para todos los dispositivos.',
-          ].map((tip, i) => (
+          {TIPS.map((tip, i) => (
             <View key={i} style={styles.tipRow}>
-              <Ionicons name="checkmark-circle-outline" size={14} color={colors.primary} />
+              <Ionicons name="checkmark-circle-outline" size={14} color={colors.successText} />
               <Text style={styles.tipText}>{tip}</Text>
             </View>
           ))}
@@ -154,33 +139,15 @@ export default function ProfessorAnnouncementScreen({ navigation }: any) {
 
         {/* Course preview */}
         <View style={styles.coursePreview}>
-          <View style={styles.activeBadge}>
-            <Text style={styles.activeBadgeText}>ACTIVO</Text>
+          <View style={styles.coursePreviewBadge}>
+            <Text style={styles.coursePreviewBadgeText}>Activo</Text>
           </View>
-          <View style={styles.courseThumbnail} />
-          <View style={styles.coursePreviewInfo}>
-            <Text style={styles.coursePreviewTitle}>Desarrollo Web Full Stack</Text>
-            <Text style={styles.coursePreviewSub}>148 Estudiantes • 12 Sesiones pendientes</Text>
-          </View>
+          <Text style={styles.coursePreviewTitle}>Desarrollo Web Full Stack</Text>
+          <Text style={styles.coursePreviewSub}>148 Estudiantes · 12 Sesiones pendientes</Text>
         </View>
 
-        <View style={{ height: spacing.xl }} />
+        <View style={{ height: spacing.lg }} />
       </ScrollView>
-
-      {/* Footer actions */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.draftBtn} activeOpacity={0.7}>
-          <Text style={styles.draftBtnText}>Guardar Borrador</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.publishBtn, !subject && styles.publishBtnDisabled]}
-          disabled={!subject}
-          activeOpacity={0.85}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.publishBtnText}>Publicar Anuncio</Text>
-        </TouchableOpacity>
-      </View>
 
       <ProfessorBottomNavBar activeTab="ProfessorAnnouncement" navigation={navigation} />
     </SafeAreaView>
@@ -196,183 +163,150 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 56,
     backgroundColor: colors.white,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerBtn: { padding: spacing.xs },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.primary },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.avatarBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.avatarText },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatarBox: { width: 34, height: 34, borderRadius: 8, backgroundColor: colors.accentAmber, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 13, fontWeight: '700', color: colors.white },
   scroll: { flex: 1 },
-  titleSection: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.xs },
-  pageTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
-  card: {
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
+  formCard: {
+    margin: spacing.md,
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
-    gap: spacing.sm,
+    gap: spacing.md,
   },
+  formTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
   field: { gap: spacing.xs },
   fieldLabel: { fontSize: fontSize.label, fontWeight: '500', color: colors.textMuted },
-  selectWrapper: {
+  selectField: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: 12,
-    height: 48,
-  },
-  selectText: { flex: 1, fontSize: fontSize.bodySm, color: colors.textPrimary, marginRight: 4 },
-  inputWrapper: {
+    paddingVertical: 12,
     backgroundColor: colors.surface,
+  },
+  selectText: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary },
+  inputWrapper: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: 12,
     height: 48,
     justifyContent: 'center',
+    backgroundColor: colors.surface,
   },
   input: { fontSize: fontSize.body, color: colors.textPrimary },
-  editorToolbar: {
-    flexDirection: 'row',
-    gap: 4,
-    paddingHorizontal: 4,
-    paddingVertical: 6,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.md,
-    borderTopRightRadius: radius.md,
+  richTextContainer: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderBottomWidth: 0,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+  },
+  toolbar: {
+    flexDirection: 'row',
+    gap: 4,
+    padding: 8,
+    backgroundColor: colors.primaryLight,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   toolBtn: {
-    width: 28,
-    height: 28,
+    width: 32,
+    height: 32,
     borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  toolBtnText: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  textarea: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderTopWidth: 0,
-    borderBottomLeftRadius: radius.md,
-    borderBottomRightRadius: radius.md,
+  bodyInput: {
+    minHeight: 120,
     padding: 12,
     fontSize: fontSize.body,
     color: colors.textPrimary,
-    minHeight: 120,
     lineHeight: 22,
+    backgroundColor: colors.white,
   },
   dropZone: {
     borderWidth: 1.5,
     borderColor: colors.border,
     borderStyle: 'dashed',
     borderRadius: radius.lg,
-    padding: spacing.md,
+    padding: spacing.lg,
     alignItems: 'center',
     gap: 6,
     backgroundColor: colors.surface,
   },
-  dropZoneAttached: { borderColor: colors.primary, borderStyle: 'solid', backgroundColor: colors.primaryLight },
-  dropZoneTitle: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textMuted, textAlign: 'center' },
-  dropZoneSub: { fontSize: fontSize.caption, color: colors.placeholder },
-  dropZoneAttachedTitle: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.primary },
-  notifySection: { gap: spacing.xs },
-  notifyRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  dropText: { fontSize: 13, color: colors.textMuted, textAlign: 'center' },
+  dropSub: { fontSize: 11, color: colors.placeholder },
+  checkRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   checkbox: {
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
     borderRadius: 4,
     borderWidth: 1.5,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
+    flexShrink: 0,
   },
   checkboxActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  notifyLabel: { flex: 1, fontSize: fontSize.bodySm, color: colors.textPrimary, lineHeight: 20 },
-  tipsCard: {
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
-  },
-  tipsHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: 4 },
-  tipsTitle: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.primary },
-  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.xs },
-  tipText: { flex: 1, fontSize: fontSize.caption, color: colors.textMuted, lineHeight: 18 },
-  coursePreview: {
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
-    position: 'relative',
-  },
-  activeBadge: {
-    position: 'absolute',
-    top: spacing.sm,
-    left: spacing.sm,
-    zIndex: 1,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
-  },
-  activeBadgeText: { fontSize: fontSize.caption, fontWeight: '700', color: colors.white, letterSpacing: 0.5 },
-  courseThumbnail: { height: 90, backgroundColor: colors.primaryDark },
-  coursePreviewInfo: { backgroundColor: colors.white, padding: spacing.sm },
-  coursePreviewTitle: { fontSize: fontSize.body, fontWeight: '600', color: colors.textPrimary },
-  coursePreviewSub: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
-  footer: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.white,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
+  checkLabel: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary, lineHeight: 20 },
   draftBtn: {
-    flex: 1,
-    height: 46,
+    height: 48,
     borderRadius: radius.md,
     borderWidth: 1.5,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  draftBtnText: { fontSize: fontSize.body, fontWeight: '500', color: colors.textMuted },
+  draftBtnText: { fontSize: fontSize.body, fontWeight: '500', color: colors.textPrimary },
   publishBtn: {
-    flex: 1.5,
-    height: 46,
+    height: 52,
     borderRadius: radius.md,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  publishBtnDisabled: { backgroundColor: colors.border },
   publishBtnText: { fontSize: fontSize.body, fontWeight: '600', color: colors.white },
+  tipsCard: {
+    marginHorizontal: spacing.md,
+    backgroundColor: colors.primaryLight,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    gap: 8,
+  },
+  tipsHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  tipsTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.successText },
+  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  tipText: { flex: 1, fontSize: fontSize.bodySm, color: colors.textPrimary, lineHeight: 18 },
+  coursePreview: {
+    margin: spacing.md,
+    height: 100,
+    backgroundColor: colors.primaryDark,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    justifyContent: 'flex-end',
+    gap: 4,
+  },
+  coursePreviewBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.activeBg,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 20,
+    marginBottom: 4,
+  },
+  coursePreviewBadgeText: { fontSize: 11, fontWeight: '600', color: colors.successText },
+  coursePreviewTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.white },
+  coursePreviewSub: { fontSize: 12, color: 'rgba(255,255,255,0.65)' },
 })

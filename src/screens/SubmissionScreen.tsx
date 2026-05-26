@@ -11,12 +11,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
+import BottomNavBar from '../components/BottomNavBar'
 
-const RUBRIC_ITEMS = [
-  { label: 'Diseño visual e identidad', score: '30', max: '30' },
-  { label: 'Usabilidad y flujos de usuario', score: '25', max: '25' },
-  { label: 'Prototipo interactivo', score: '30', max: '30' },
-  { label: 'Documentación técnica', score: '15', max: '15' },
+const RUBRIC = [
+  { label: 'Concepto Visual', desc: 'Creatividad y coherencia de marca', pts: 40 },
+  { label: 'Usabilidad (Uú)', desc: 'Flujos y facilidad de navegación', pts: 40 },
+  { label: 'Prototipado', desc: 'Interacciones y fidelidad', pts: 20 },
 ]
 
 export default function SubmissionScreen({ navigation }: any) {
@@ -25,37 +25,29 @@ export default function SubmissionScreen({ navigation }: any) {
   const [fileAttached, setFileAttached] = useState(false)
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Entregar tarea</Text>
-        <View style={{ width: 38 }} />
-      </View>
-
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Info alert */}
-        <View style={styles.infoAlert}>
-          <Ionicons name="information-circle" size={18} color={colors.primary} style={{ marginTop: 2 }} />
-          <Text style={styles.alertText}>
-            Fecha límite:{' '}
-            <Text style={styles.alertBold}>Viernes 23 de mayo · 11:59 PM</Text>
+        {/* Achievement banner */}
+        <View style={styles.achieveBanner}>
+          <View style={styles.achieveIconBox}>
+            <Ionicons name="ribbon-outline" size={18} color={colors.successText} />
+          </View>
+          <Text style={styles.achieveText}>
+            ¡Casi terminas! Obtén tu insignia de{' '}
+            <Text style={{ fontWeight: '600' }}>Diseñador Junior</Text>
           </Text>
         </View>
 
-        {/* Left column: assignment details */}
-        <View style={styles.section}>
-          <Text style={styles.assignmentTitle}>Entrega: Proyecto Final de Diseño</Text>
-          <Text style={styles.assignmentDesc}>
-            Sube tu propuesta final en formato PDF. Asegúrate de incluir los enlaces correspondientes
-            a tus prototipos interactivos de Figma o Adobe XD para la evaluación de usabilidad.
+        <View style={styles.content}>
+          {/* Assignment title + desc */}
+          <Text style={styles.assignTitle}>Entrega: Proyecto Final de Diseño</Text>
+          <Text style={styles.assignDesc}>
+            Sube tu propuesta final en formato PDF. Asegúrate de incluir los enlaces correspondientes a tus prototipos interactivos de Figma o Adobe XD para la evaluación de usabilidad.
           </Text>
 
-          {/* Drop Zone */}
+          {/* Drop zone */}
           <TouchableOpacity
             style={[styles.dropZone, fileAttached && styles.dropZoneAttached]}
             onPress={() => setFileAttached(!fileAttached)}
@@ -64,22 +56,19 @@ export default function SubmissionScreen({ navigation }: any) {
             {fileAttached ? (
               <>
                 <Ionicons name="document-text" size={28} color={colors.primary} />
-                <Text style={styles.dropZoneAttachedTitle}>propuesta_final.pdf</Text>
-                <Text style={styles.dropZoneAttachedSub}>3.2 MB · Toca para cambiar</Text>
+                <Text style={styles.dropAttachedTitle}>propuesta_final.pdf</Text>
+                <Text style={styles.dropAttachedSub}>3.2 MB · Toca para cambiar</Text>
               </>
             ) : (
               <>
                 <Ionicons name="cloud-upload-outline" size={32} color={colors.textMuted} />
-                <Text style={styles.dropZoneTitle}>Arrastra tu archivo aquí</Text>
-                <Text style={styles.dropZoneSub}>PDF, máx. 10 MB</Text>
-                <View style={styles.browseBtn}>
-                  <Text style={styles.browseBtnText}>Buscar archivo</Text>
-                </View>
+                <Text style={styles.dropTitle}>Arrastra tu archivo PDF aquí</Text>
+                <Text style={styles.dropSub}>O haz clic para seleccionar archivos (Máx 50MB)</Text>
               </>
             )}
           </TouchableOpacity>
 
-          {/* Links input */}
+          {/* Links */}
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>Enlaces a prototipos</Text>
             <View style={styles.inputWrapper}>
@@ -95,14 +84,14 @@ export default function SubmissionScreen({ navigation }: any) {
             </View>
           </View>
 
-          {/* Comments textarea */}
+          {/* Comments */}
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>Comentarios para el instructor</Text>
             <TextInput
               style={styles.textarea}
               value={comments}
               onChangeText={setComments}
-              placeholder="Describe las decisiones de diseño más importantes..."
+              placeholder="Escribe aquí cualquier observación relevante sobre tu entrega..."
               placeholderTextColor={colors.placeholder}
               multiline
               numberOfLines={4}
@@ -111,45 +100,64 @@ export default function SubmissionScreen({ navigation }: any) {
           </View>
 
           {/* Action buttons */}
-          <View style={styles.actionBtns}>
-            <TouchableOpacity style={styles.draftBtn} activeOpacity={0.7}>
-              <Text style={styles.draftBtnText}>Guardar borrador</Text>
+          <TouchableOpacity
+            style={[styles.submitBtn, !fileAttached && styles.submitBtnDisabled]}
+            activeOpacity={0.85}
+            disabled={!fileAttached}
+            onPress={() => navigation.navigate('Dashboard')}
+          >
+            <Text style={styles.submitBtnText}>Enviar tarea</Text>
+          </TouchableOpacity>
+
+          <View style={styles.secondaryBtns}>
+            <TouchableOpacity style={styles.draftBtn} activeOpacity={0.7} onPress={() => navigation.goBack()}>
+              <Text style={styles.draftBtnText}>Guardar Borrador</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.submitBtn, !fileAttached && styles.submitBtnDisabled]}
-              activeOpacity={0.85}
-              disabled={!fileAttached}
-            >
-              <Text style={styles.submitBtnText}>Enviar entrega</Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.goBack()}>
+              <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
-        </View>
 
-        {/* Rubric card */}
-        <View style={styles.rubricCard}>
-          <Text style={styles.rubricTitle}>Rúbrica de calificación</Text>
-          <View style={styles.divider} />
-          {RUBRIC_ITEMS.map((item, idx) => (
-            <View key={idx}>
-              <View style={styles.rubricRow}>
-                <Text style={styles.rubricLabel}>{item.label}</Text>
-                <Text style={styles.rubricScore}>
-                  <Text style={styles.rubricScoreValue}>{item.score}</Text>
-                  <Text style={styles.rubricScoreMax}>/{item.max} pts</Text>
-                </Text>
+          {/* Rubric */}
+          <View style={styles.rubricCard}>
+            <Text style={styles.rubricTitle}>Rúbrica de calificación</Text>
+            <View style={styles.divider} />
+            {RUBRIC.map((item, i) => (
+              <View key={i}>
+                <View style={styles.rubricRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.rubricLabel}>{item.label}</Text>
+                    <Text style={styles.rubricDesc}>{item.desc}</Text>
+                  </View>
+                  <Text style={styles.rubricPts}>{item.pts} <Text style={styles.rubricPtsLabel}>pts</Text></Text>
+                </View>
+                <View style={styles.divider} />
               </View>
-              {idx < RUBRIC_ITEMS.length - 1 && <View style={styles.divider} />}
+            ))}
+            <View style={styles.rubricRow}>
+              <View style={styles.rubricTrack}>
+                <View style={{ width: '0%', height: '100%', backgroundColor: colors.primary, borderRadius: 4 }} />
+              </View>
+              <Text style={styles.rubricTotal}>0/100 pts</Text>
             </View>
-          ))}
-          <View style={styles.divider} />
-          <View style={styles.rubricTotal}>
-            <Text style={styles.rubricTotalLabel}>Total</Text>
-            <Text style={styles.rubricTotalValue}>100 pts</Text>
+          </View>
+
+          {/* Achievement card */}
+          <View style={styles.credentialCard}>
+            <View style={styles.credentialIcon}>
+              <Ionicons name="ribbon" size={22} color={colors.accentViolet} />
+            </View>
+            <View>
+              <Text style={styles.credentialTitle}>Diseñador Junior</Text>
+              <Text style={styles.credentialSub}>Certificación oficial</Text>
+            </View>
           </View>
         </View>
 
-        <View style={{ height: spacing.xl }} />
+        <View style={{ height: spacing.lg }} />
       </ScrollView>
+
+      <BottomNavBar activeTab="Submission" navigation={navigation} />
     </SafeAreaView>
   )
 }
@@ -166,25 +174,33 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  backBtn: { padding: spacing.xs },
-  headerTitle: { fontSize: 16, fontWeight: '600', color: colors.textPrimary },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.avatarBg, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 13, fontWeight: '600', color: colors.avatarText },
   scroll: { flex: 1 },
-  infoAlert: {
+  achieveBanner: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
+    alignItems: 'center',
+    gap: 10,
     margin: spacing.md,
-    padding: spacing.sm + 2,
-    backgroundColor: colors.primaryLight,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-    borderRadius: radius.sm,
+    backgroundColor: colors.activeBg,
+    borderRadius: radius.lg,
+    padding: 14,
   },
-  alertText: { flex: 1, fontSize: fontSize.bodySm, color: colors.primaryDark, lineHeight: 20 },
-  alertBold: { fontWeight: '600' },
-  section: { paddingHorizontal: spacing.md, gap: spacing.md },
-  assignmentTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
-  assignmentDesc: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 22 },
+  achieveIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  achieveText: { flex: 1, fontSize: 13, color: colors.successText, lineHeight: 18 },
+  content: { paddingHorizontal: spacing.md, gap: spacing.md },
+  assignTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
+  assignDesc: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 22 },
   dropZone: {
     borderWidth: 1.5,
     borderColor: colors.border,
@@ -196,18 +212,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   dropZoneAttached: { borderColor: colors.primary, borderStyle: 'solid', backgroundColor: colors.primaryLight },
-  dropZoneTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.textMuted },
-  dropZoneSub: { fontSize: fontSize.caption, color: colors.placeholder },
-  dropZoneAttachedTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.primary },
-  dropZoneAttachedSub: { fontSize: fontSize.caption, color: colors.textMuted },
-  browseBtn: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    marginTop: spacing.xs,
-  },
-  browseBtnText: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.white },
+  dropTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.textMuted, textAlign: 'center' },
+  dropSub: { fontSize: 12, color: colors.placeholder, textAlign: 'center' },
+  dropAttachedTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.primary },
+  dropAttachedSub: { fontSize: fontSize.caption, color: colors.textMuted },
   field: { gap: spacing.xs },
   fieldLabel: { fontSize: fontSize.label, fontWeight: '500', color: colors.textMuted },
   inputWrapper: {
@@ -232,7 +240,16 @@ const styles = StyleSheet.create({
     minHeight: 96,
     lineHeight: 22,
   },
-  actionBtns: { flexDirection: 'row', gap: spacing.sm },
+  submitBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitBtnDisabled: { backgroundColor: colors.border },
+  submitBtnText: { fontSize: fontSize.body, fontWeight: '600', color: colors.white },
+  secondaryBtns: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   draftBtn: {
     flex: 1,
     height: 44,
@@ -242,43 +259,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  draftBtnText: { fontSize: fontSize.body, fontWeight: '500', color: colors.textMuted },
-  submitBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitBtnDisabled: { backgroundColor: colors.surface },
-  submitBtnText: { fontSize: fontSize.body, fontWeight: '600', color: colors.white },
+  draftBtnText: { fontSize: fontSize.body, fontWeight: '500', color: colors.textPrimary },
+  cancelText: { fontSize: fontSize.body, color: colors.textMuted, fontWeight: '500' },
   rubricCard: {
-    margin: spacing.md,
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
+    gap: spacing.xs,
   },
-  rubricTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary, marginBottom: spacing.sm },
+  rubricTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary, marginBottom: 4 },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
-  rubricRow: {
+  rubricRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingVertical: 6 },
+  rubricLabel: { fontSize: fontSize.body, fontWeight: '500', color: colors.textPrimary },
+  rubricDesc: { fontSize: 12, color: colors.textMuted, marginTop: 1 },
+  rubricPts: { fontSize: fontSize.headingSm, fontWeight: '700', color: colors.primary },
+  rubricPtsLabel: { fontSize: fontSize.caption, fontWeight: '400', color: colors.textMuted },
+  rubricTrack: { flex: 1, height: 6, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden', marginTop: 6 },
+  rubricTotal: { fontSize: 13, fontWeight: '600', color: colors.textMuted },
+  credentialCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
+    gap: 12,
+    backgroundColor: colors.credentialBg,
+    borderRadius: radius.lg,
+    padding: spacing.md,
   },
-  rubricLabel: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary },
-  rubricScore: {},
-  rubricScoreValue: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.primary },
-  rubricScoreMax: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  rubricTotal: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  credentialIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(107,92,184,0.15)',
     alignItems: 'center',
-    paddingTop: spacing.sm,
+    justifyContent: 'center',
   },
-  rubricTotalLabel: { fontSize: fontSize.body, fontWeight: '600', color: colors.textPrimary },
-  rubricTotalValue: { fontSize: fontSize.headingSm, fontWeight: '700', color: colors.primary },
+  credentialTitle: { fontSize: 14, fontWeight: '600', color: colors.accentViolet },
+  credentialSub: { fontSize: 12, color: colors.textMuted },
 })

@@ -7,21 +7,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
-  Switch,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
-
 const CATEGORIES = ['UX/UI Design', 'Desarrollo Web', 'Data Science', 'Liderazgo', 'Negocios']
-const TEACHERS = ['Dra. Helena Rivas', 'Mtrs. Jorge Linares', 'Lic. Sofía Chan', 'Dr. Andrés Mora']
-
-const AUTOMATION_RULES = [
-  { label: 'Actividad Logística', sub: 'Si el usuario completa todos...', key: 'logistics' },
-  { label: 'Notificación de Éxito', sub: 'Permite "¡Certificación obtenida!"...', key: 'notification' },
-  { label: 'Publicación en LinkedIn', sub: 'Comparte la credencial en el perfil del...', key: 'linkedin' },
-  { label: 'Generación de PDF Título', sub: 'Genera el certificado en PDF...', key: 'pdf' },
-]
+const TEACHERS = ['Dra. Helena Rivas', 'Mtro. Jorge Linares', 'Lic. Sofía Chan', 'Dr. Andrés Mora']
 
 export default function AdminCreateCourseScreen({ navigation }: any) {
   const [courseName, setCourseName] = useState('')
@@ -29,40 +20,30 @@ export default function AdminCreateCourseScreen({ navigation }: any) {
   const [showTeachers, setShowTeachers] = useState(false)
   const [category, setCategory] = useState('')
   const [showCategories, setShowCategories] = useState(false)
-  const [fileAttached, setFileAttached] = useState(false)
-  const [automationToggles, setAutomationToggles] = useState<Record<string, boolean>>({
-    logistics: true,
-    notification: true,
-    linkedin: false,
-    pdf: false,
-  })
-
-  const toggleAutomation = (key: string) => {
-    setAutomationToggles((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuBtn}>
           <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={{ width: 38 }} />
+        <Text style={styles.brand}>Crear Curso</Text>
+        <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Profile')}>
+          <Text style={styles.avatarText}>AD</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Title */}
         <View style={styles.titleSection}>
           <View style={styles.adminBadge}>
             <Text style={styles.adminBadgeText}>ADMINISTRADOR</Text>
           </View>
           <Text style={styles.pageTitle}>Crear Nuevo Curso</Text>
+          <View style={styles.titleAccent} />
         </View>
 
-        {/* Configuración Inicial */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Configuración Inicial</Text>
 
@@ -136,94 +117,32 @@ export default function AdminCreateCourseScreen({ navigation }: any) {
           </View>
 
           <View style={styles.infoBox}>
-            <Ionicons name="information-circle-outline" size={16} color={colors.primary} />
+            <Ionicons name="information-circle-outline" size={16} color={colors.accentAmber} style={{ marginTop: 1 }} />
             <Text style={styles.infoText}>
               La configuración inicial es crucial para el posicionamiento del curso en el catálogo institucional.
             </Text>
           </View>
         </View>
 
-        {/* Imagen de Portada */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Imagen de Portada</Text>
-          <TouchableOpacity
-            style={[styles.dropZone, fileAttached && styles.dropZoneAttached]}
-            onPress={() => setFileAttached(!fileAttached)}
-            activeOpacity={0.8}
-          >
-            {fileAttached ? (
-              <>
-                <Ionicons name="image" size={28} color={colors.primary} />
-                <Text style={styles.dropZoneAttachedTitle}>portada_curso.png</Text>
-                <Text style={styles.dropZoneSub}>1.8 MB · Toca para cambiar</Text>
-              </>
-            ) : (
-              <>
-                <Ionicons name="cloud-upload-outline" size={28} color={colors.textMuted} />
-                <Text style={styles.dropZoneTitle}>Haz clic para subir</Text>
-                <Text style={styles.dropZoneSub}>PNG, JPG, máx. 5MB</Text>
-                <Text style={styles.dropZoneDim}>1280×720px</Text>
-              </>
-            )}
+        <View style={styles.imageSection}>
+          <Text style={styles.imageSectionTitle}>Imagen de Portada</Text>
+          <TouchableOpacity style={styles.dropZone} activeOpacity={0.8}>
+            <Ionicons name="document-outline" size={28} color={colors.textMuted} />
+            <Text style={styles.dropZoneTitle}>Haz clic para subir</Text>
+            <Text style={styles.dropZoneSub}>PNG, JPG o WEBP (Recomendado: 300x200px)</Text>
           </TouchableOpacity>
 
           <Text style={styles.previewLabel}>Vista previa sugerida</Text>
-          <View style={styles.previewBox}>
-            <View style={styles.previewPlaceholder}>
-              <Ionicons name="image-outline" size={24} color={colors.border} />
-            </View>
-            <View style={styles.previewText}>
-              <View style={styles.previewLine} />
-              <View style={[styles.previewLine, { width: '60%' }]} />
-            </View>
-          </View>
-        </View>
-
-        {/* Reglas de Automatización */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Reglas de Automatización</Text>
-          {AUTOMATION_RULES.map((rule) => (
-            <View key={rule.key} style={styles.ruleRow}>
-              <View style={styles.ruleIcon}>
-                <Ionicons name="flash-outline" size={16} color={colors.primary} />
-              </View>
-              <View style={styles.ruleInfo}>
-                <Text style={styles.ruleLabel}>{rule.label}</Text>
-                <Text style={styles.ruleSub} numberOfLines={1}>{rule.sub}</Text>
-              </View>
-              <Switch
-                value={automationToggles[rule.key]}
-                onValueChange={() => toggleAutomation(rule.key)}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor={colors.white}
-                style={{ transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }] }}
-              />
-            </View>
-          ))}
-        </View>
-
-        {/* Stats row */}
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Entradas</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.accentAmber }]}>42</Text>
-            <Text style={styles.statLabel}>En proceso</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.primary }]}>98%</Text>
-            <Text style={styles.statLabel}>Confianza</Text>
+          <View style={styles.previewRow}>
+            {[0, 1, 2].map((i) => (
+              <View key={i} style={styles.previewBox} />
+            ))}
           </View>
         </View>
 
         <View style={{ height: spacing.xl }} />
       </ScrollView>
 
-      {/* Bottom actions */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.cancelBtn}
@@ -259,10 +178,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  backBtn: { padding: spacing.xs },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: { fontSize: 13, fontWeight: '700', color: colors.successText },
   scroll: { flex: 1 },
-  titleSection: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.xs, gap: spacing.xs },
+  titleSection: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+    gap: spacing.xs,
+  },
   adminBadge: {
     alignSelf: 'flex-start',
     backgroundColor: colors.primaryLight,
@@ -272,9 +206,10 @@ const styles = StyleSheet.create({
   },
   adminBadgeText: { fontSize: fontSize.caption, fontWeight: '700', color: colors.primary, letterSpacing: 0.5 },
   pageTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
+  titleAccent: { width: 32, height: 3, backgroundColor: colors.primary, borderRadius: 2 },
   card: {
     marginHorizontal: spacing.md,
-    marginTop: spacing.md,
+    marginTop: spacing.xs,
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
@@ -282,20 +217,19 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
-  cardTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary, marginBottom: 4 },
+  cardTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
   field: { gap: spacing.xs },
   label: { fontSize: fontSize.label, fontWeight: '500', color: colors.textMuted },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: 12,
     height: 48,
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
   },
-  input: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary },
+  input: { fontSize: fontSize.body, color: colors.textPrimary },
   selectWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -329,79 +263,40 @@ const styles = StyleSheet.create({
   dropdownTextActive: { color: colors.primary, fontWeight: '500' },
   infoBox: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.xs,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.progressBg,
     borderRadius: radius.sm,
     padding: spacing.sm,
   },
-  infoText: { flex: 1, fontSize: fontSize.caption, color: colors.primaryDark, lineHeight: 18 },
+  infoText: { flex: 1, fontSize: fontSize.caption, color: colors.progressText, lineHeight: 18 },
+  imageSection: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.md,
+    gap: spacing.sm,
+  },
+  imageSectionTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
   dropZone: {
     borderWidth: 1.5,
     borderColor: colors.border,
     borderStyle: 'dashed',
     borderRadius: radius.lg,
-    padding: spacing.lg,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 6,
     backgroundColor: colors.surface,
   },
-  dropZoneAttached: { borderColor: colors.primary, borderStyle: 'solid', backgroundColor: colors.primaryLight },
   dropZoneTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.textMuted },
-  dropZoneSub: { fontSize: fontSize.caption, color: colors.placeholder },
-  dropZoneDim: { fontSize: fontSize.caption, color: colors.placeholder },
-  dropZoneAttachedTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.primary },
+  dropZoneSub: { fontSize: fontSize.caption, color: colors.placeholder, textAlign: 'center' },
   previewLabel: { fontSize: fontSize.label, fontWeight: '500', color: colors.textMuted },
+  previewRow: { flexDirection: 'row', gap: spacing.sm },
   previewBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  previewPlaceholder: {
-    width: 56,
-    height: 40,
-    borderRadius: radius.sm,
+    flex: 1,
+    height: 48,
     backgroundColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: radius.md,
   },
-  previewText: { flex: 1, gap: 6 },
-  previewLine: { height: 8, backgroundColor: colors.border, borderRadius: 4, width: '80%' },
-  ruleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  ruleIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ruleInfo: { flex: 1 },
-  ruleLabel: { fontSize: fontSize.body, fontWeight: '500', color: colors.textPrimary },
-  ruleSub: { fontSize: fontSize.caption, color: colors.textMuted },
-  statsRow: {
-    flexDirection: 'row',
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.md,
-  },
-  statItem: { flex: 1, alignItems: 'center' },
-  statDivider: { width: 1, backgroundColor: colors.border },
-  statValue: { fontSize: fontSize.headingMd, fontWeight: '700', color: colors.textPrimary },
-  statLabel: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
   footer: {
     flexDirection: 'row',
     gap: spacing.sm,
@@ -431,7 +326,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
   },
   nextBtnDisabled: { backgroundColor: colors.border },
   nextBtnText: { fontSize: fontSize.body, fontWeight: '600', color: colors.white },

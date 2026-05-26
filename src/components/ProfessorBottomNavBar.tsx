@@ -1,9 +1,10 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius } from '../styles/theme'
 
-type ProfTabName = 'ProfessorDashboard' | 'ProfessorCourses' | 'ProfessorAnnouncement' | 'ProfessorStudentsList' | 'Profile'
+type ProfTabName = 'ProfessorDashboard' | 'ProfessorStudentsList' | 'ProfessorAnnouncement' | 'Profile'
 
 interface ProfessorBottomNavBarProps {
   activeTab: ProfTabName
@@ -12,15 +13,15 @@ interface ProfessorBottomNavBarProps {
 
 const TABS: { name: ProfTabName; label: string; icon: string }[] = [
   { name: 'ProfessorDashboard', label: 'Inicio', icon: 'home-outline' },
-  { name: 'ProfessorCourses', label: 'Cursos', icon: 'book-outline' },
-  { name: 'ProfessorAnnouncement', label: 'Anuncios', icon: 'megaphone-outline' },
-  { name: 'ProfessorStudentsList', label: 'Alumnos', icon: 'people-outline' },
+  { name: 'ProfessorStudentsList', label: 'Cursos', icon: 'book-outline' },
+  { name: 'ProfessorAnnouncement', label: 'Mensajes', icon: 'chatbubble-outline' },
   { name: 'Profile', label: 'Perfil', icon: 'person-outline' },
 ]
 
 export default function ProfessorBottomNavBar({ activeTab, navigation }: ProfessorBottomNavBarProps) {
+  const { bottom } = useSafeAreaInsets()
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: bottom }]}>
       {TABS.map((tab) => {
         const isActive = tab.name === activeTab
         return (
@@ -47,7 +48,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: colors.border,
     paddingHorizontal: spacing.xs,
-    height: 56,
+    paddingTop: 8,
+    minHeight: 56,
   },
   item: {
     flex: 1,

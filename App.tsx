@@ -1,10 +1,12 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
+import * as Sentry from '@sentry/react-native'
+import './src/config/sentry'
 import { AuthProvider } from './src/context/AuthContext'
 import { RootStack } from './src/navigation/navigator'
 
-export default function App() {
+function App() {
   return (
     <AuthProvider>
       <NavigationContainer>
@@ -13,6 +15,8 @@ export default function App() {
     </AuthProvider>
   )
 }
+
+export default Sentry.wrap(App)
 
 const styles = StyleSheet.create({
   container: {

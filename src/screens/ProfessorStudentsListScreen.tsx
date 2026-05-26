@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -14,9 +15,9 @@ import { colors, spacing, radius, fontSize } from '../styles/theme'
 import ProfessorBottomNavBar from '../components/ProfessorBottomNavBar'
 
 const STUDENTS = [
-  { initials: 'AL', name: 'Alejandro Luna', progress: 75, color: colors.avatarBg },
-  { initials: 'BC', name: 'Beatriz Castillo', progress: 60, color: '#D6E4FF' },
-  { initials: 'DM', name: 'Daniel Mendoza', progress: 45, color: '#FFE5D6' },
+  { initials: 'AL', name: 'Alejandro Luna', progress: 75, color: colors.avatarBg, delivered: true },
+  { initials: 'BC', name: 'Beatriz Castillo', progress: 60, color: '#D6E4FF', delivered: true },
+  { initials: 'DM', name: 'Daniel Mendoza', progress: 45, color: '#FFE5D6', delivered: false },
 ]
 
 const BADGES = [
@@ -25,28 +26,27 @@ const BADGES = [
   { label: 'Rápido Aprendiz', color: colors.accentAmber, bg: colors.progressBg },
 ]
 
+const DELIVERY_OPTIONS = ['Estado de Entrega', 'Entregado', 'Pendiente']
+const PROGRESS_OPTIONS = ['Progreso', 'Alto (>60%)', 'Bajo (≤60%)']
+
 export default function ProfessorStudentsListScreen({ navigation }: any) {
   const [search, setSearch] = useState('')
-  const [deliveryFilter, setDeliveryFilter] = useState('Estado de Entrega')
-  const [progressFilter, setProgressFilter] = useState('Progreso')
+  const [deliveryIdx, setDeliveryIdx] = useState(0)
+  const [progressIdx, setProgressIdx] = useState(0)
 
-  const filtered = STUDENTS.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const deliveryFilter = DELIVERY_OPTIONS[deliveryIdx]
+  const progressFilter = PROGRESS_OPTIONS[progressIdx]
+
+  const filtered = STUDENTS.filter((s) => {
+    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase())
+    const matchDelivery = deliveryFilter === 'Estado de Entrega' || (deliveryFilter === 'Entregado' ? s.delivered : !s.delivered)
+    const matchProgress = progressFilter === 'Progreso' || (progressFilter === 'Alto (>60%)' ? s.progress > 60 : s.progress <= 60)
+    return matchSearch && matchDelivery && matchProgress
+  })
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Ionicons name="menu-outline" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>DR</Text>
-        </View>
-      </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {/* Page title */}
@@ -54,7 +54,7 @@ export default function ProfessorStudentsListScreen({ navigation }: any) {
           <Text style={styles.pageTitle}>Listado de Estudiantes</Text>
           <Text style={styles.pageSub}>Gestión de la cohorte activa. Supervisa el progreso individual y el cumplimiento de entregas académicas.</Text>
           <View style={styles.actionBtns}>
-            <TouchableOpacity style={styles.exportBtn} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.exportBtn} activeOpacity={0.7} onPress={() => Alert.alert('Exportar', 'Generando CSV de estudiantes...')}>
               <Ionicons name="download-outline" size={14} color={colors.primary} />
               <Text style={styles.exportBtnText}>Exportar CSV</Text>
             </TouchableOpacity>
@@ -79,16 +79,25 @@ export default function ProfessorStudentsListScreen({ navigation }: any) {
             />
           </View>
           <View style={styles.filtersRow}>
-            <TouchableOpacity style={styles.filterChip}>
-              <Text style={styles.filterChipText}>{deliveryFilter}</Text>
-              <Ionicons name="chevron-down" size={12} color={colors.textMuted} />
+            <TouchableOpacity
+              style={[styles.filterChip, deliveryIdx > 0 && styles.filterChipActive]}
+              onPress={() => setDeliveryIdx((i) => (i + 1) % DELIVERY_OPTIONS.length)}
+            >
+              <Text style={[styles.filterChipText, deliveryIdx > 0 && styles.filterChipTextActive]}>{deliveryFilter}</Text>
+              <Ionicons name="chevron-down" size={12} color={deliveryIdx > 0 ? colors.primary : colors.textMuted} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterChip}>
-              <Text style={styles.filterChipText}>{progressFilter}</Text>
-              <Ionicons name="chevron-down" size={12} color={colors.textMuted} />
+            <TouchableOpacity
+              style={[styles.filterChip, progressIdx > 0 && styles.filterChipActive]}
+              onPress={() => setProgressIdx((i) => (i + 1) % PROGRESS_OPTIONS.length)}
+            >
+              <Text style={[styles.filterChipText, progressIdx > 0 && styles.filterChipTextActive]}>{progressFilter}</Text>
+              <Ionicons name="chevron-down" size={12} color={progressIdx > 0 ? colors.primary : colors.textMuted} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterIconBtn}>
-              <Ionicons name="funnel-outline" size={16} color={colors.textMuted} />
+            <TouchableOpacity
+              style={[styles.filterIconBtn, (deliveryIdx > 0 || progressIdx > 0) && styles.filterIconBtnActive]}
+              onPress={() => { setDeliveryIdx(0); setProgressIdx(0) }}
+            >
+              <Ionicons name="funnel-outline" size={16} color={(deliveryIdx > 0 || progressIdx > 0) ? colors.primary : colors.textMuted} />
             </TouchableOpacity>
           </View>
         </View>
@@ -128,7 +137,7 @@ export default function ProfessorStudentsListScreen({ navigation }: any) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Insignias Recientes</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ProfessorStudentDetail')}>
               <Text style={styles.seeAll}>Ver todos</Text>
             </TouchableOpacity>
           </View>
@@ -145,7 +154,7 @@ export default function ProfessorStudentsListScreen({ navigation }: any) {
         <View style={styles.nextClassCard}>
           <Text style={styles.nextClassLabel}>PRÓXIMA CLASE</Text>
           <Text style={styles.nextClassTitle}>Arquitectura de Microservicios</Text>
-          <TouchableOpacity style={styles.joinBtn} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.joinBtn} activeOpacity={0.85} onPress={() => Alert.alert('Clase en vivo', 'Iniciando sesión de clase...')}>
             <Text style={styles.joinBtnText}>Unirse ahora</Text>
           </TouchableOpacity>
         </View>
@@ -249,7 +258,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  filterChipActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
   filterChipText: { fontSize: fontSize.caption, color: colors.textMuted },
+  filterChipTextActive: { color: colors.primary, fontWeight: '600' },
   filterIconBtn: {
     width: 34,
     height: 34,
@@ -260,6 +271,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  filterIconBtnActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
   tableSection: {
     marginHorizontal: spacing.md,
     marginTop: spacing.sm,

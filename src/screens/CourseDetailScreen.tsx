@@ -10,223 +10,206 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, radius, fontSize } from '../styles/theme'
+import BottomNavBar from '../components/BottomNavBar'
 
 const LEARNINGS = [
-  'Principios de escalabilidad horizontal y vertical',
-  'Diseño de microservicios con comunicación asíncrona',
-  'Gestión de estado distribuido y consistencia eventual',
-  'Estrategias de caching y optimización de consultas',
+  'Diseñar arquitecturas de microservicios robustas y desacopladas.',
+  'Implementar estrategias de caché distribuido con Redis.',
+  'Optimizar bases de datos para millones de registros simultáneos.',
+  'Gestionar balanceadores de carga y escalado horizontal automático.',
 ]
 
 const MODULES = [
-  { id: 1, title: 'Introducción a la arquitectura escalable', lessons: 4, duration: '2h 30m', expanded: true },
-  { id: 2, title: 'Microservicios: diseño y comunicación', lessons: 6, duration: '4h', expanded: false },
-  { id: 3, title: 'Bases de datos distribuidas', lessons: 5, duration: '3h 30m', expanded: false },
-  { id: 4, title: 'Monitoreo y observabilidad', lessons: 4, duration: '3h', expanded: false },
+  { id: 1, title: 'Fundamentos de la Escalabilidad', lessons: 4, duration: '45 min', lessons_list: ['Escalabilidad Vertical vs Horizontal', 'Latencia vs Throughput'] },
+  { id: 2, title: 'Arquitectura de Datos', lessons: 6, duration: '1h 20min', lessons_list: [] },
+  { id: 3, title: 'Microservicios y API Gateway', lessons: 8, duration: '2h 05min', lessons_list: [] },
+]
+
+const REQUIREMENTS = [
+  'Conocimientos sólidos en algún lenguaje de programación backend (Java, Python o Node.js).',
+  'Entendimiento básico de bases de datos relacionales y NoSQL.',
+  'Familiaridad con conceptos de redes y protocolos HTTP.',
+  'No es necesaria la experiencia previa en arquitectura a gran escala.',
 ]
 
 export default function CourseDetailScreen({ navigation }: any) {
   const [expandedModule, setExpandedModule] = useState<number | null>(1)
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
-
-      {/* Video Hero */}
-      <View style={styles.videoHero}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={22} color={colors.white} />
-        </TouchableOpacity>
-        <View style={styles.playBtn}>
-          <Ionicons name="play-circle" size={52} color={colors.white} />
-        </View>
-        <Text style={styles.videoLabel}>Vista previa del curso</Text>
-      </View>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Course header */}
-        <View style={styles.courseHeader}>
-          <View style={styles.categoryRow}>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>Tecnología</Text>
-            </View>
-            <View style={styles.ratingRow}>
-              <Ionicons name="star" size={14} color={colors.accentAmber} />
-              <Text style={styles.ratingText}>4.8 · 324 estudiantes</Text>
-            </View>
+        {/* Video cover */}
+        <TouchableOpacity
+          style={styles.videoCover}
+          onPress={() => navigation.navigate('Lesson')}
+          activeOpacity={0.9}
+        >
+          <View style={styles.playBtn}>
+            <Ionicons name="play" size={24} color={colors.white} />
           </View>
+        </TouchableOpacity>
+
+        {/* Course info */}
+        <View style={styles.infoSection}>
           <Text style={styles.courseTitle}>Arquitectura de Sistemas Escalables</Text>
           <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={14} color={colors.textMuted} />
-              <Text style={styles.metaText}>14h en total</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="layers-outline" size={14} color={colors.textMuted} />
-              <Text style={styles.metaText}>19 lecciones</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="ribbon-outline" size={14} color={colors.textMuted} />
-              <Text style={styles.metaText}>Certificado</Text>
-            </View>
+            <Ionicons name="star" size={14} color={colors.accentAmber} />
+            <Text style={styles.rating}>4.9</Text>
+            <Text style={styles.metaSeparator}>·</Text>
+            <Text style={styles.metaText}>(15,320 estudiantes)</Text>
+            <Text style={styles.metaSeparator}>·</Text>
+            <Ionicons name="person-outline" size={13} color={colors.textMuted} />
+            <Text style={styles.metaText}>Julian Aranda</Text>
+          </View>
+          <View style={styles.bestSellerBadge}>
+            <Text style={styles.bestSellerText}>Best Seller</Text>
           </View>
         </View>
 
-        {/* Action buttons */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            onPress={() => navigation.navigate('Roadmap')}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.primaryBtnText}>Ver hoja de ruta</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.secondaryBtn}
-            onPress={() => navigation.navigate('Lesson')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="play-outline" size={16} color={colors.primary} />
-            <Text style={styles.secondaryBtnText}>Comenzar</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* What you'll learn */}
+        {/* Lo que aprenderás */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Lo que aprenderás</Text>
-          <View style={styles.learningGrid}>
-            {LEARNINGS.map((item, idx) => (
-              <View key={idx} style={styles.learningItem}>
-                <Ionicons name="checkmark-circle" size={16} color={colors.successText} />
+          <View style={styles.learningCard}>
+            {LEARNINGS.map((item, i) => (
+              <View key={i} style={styles.learningItem}>
+                <Ionicons name="checkmark-circle-outline" size={16} color={colors.successText} />
                 <Text style={styles.learningText}>{item}</Text>
               </View>
             ))}
           </View>
         </View>
 
-        {/* Course content */}
+        {/* Contenido del curso */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contenido del curso</Text>
-          <View style={styles.accordionList}>
-            {MODULES.map((mod) => (
-              <View key={mod.id} style={styles.accordionItem}>
-                <TouchableOpacity
-                  style={styles.accordionHeader}
-                  onPress={() => setExpandedModule(expandedModule === mod.id ? null : mod.id)}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.accordionLeft}>
-                    <Text style={styles.moduleNum}>Módulo {mod.id}</Text>
-                    <Text style={styles.moduleTitle}>{mod.title}</Text>
-                  </View>
-                  <Ionicons
-                    name={expandedModule === mod.id ? 'chevron-up' : 'chevron-down'}
-                    size={16}
-                    color={colors.textMuted}
-                  />
-                </TouchableOpacity>
-                {expandedModule === mod.id && (
-                  <View style={styles.accordionBody}>
-                    <View style={styles.accordionMeta}>
-                      <Text style={styles.accordionMetaText}>{mod.lessons} lecciones · {mod.duration}</Text>
+          {MODULES.map((mod) => (
+            <View key={mod.id} style={styles.accordionItem}>
+              <TouchableOpacity
+                style={styles.accordionHeader}
+                onPress={() => setExpandedModule(expandedModule === mod.id ? null : mod.id)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={expandedModule === mod.id ? 'chevron-down' : 'chevron-forward'}
+                  size={16}
+                  color={colors.textMuted}
+                />
+                <View style={styles.accordionInfo}>
+                  <Text style={styles.moduleTitle}>Módulo {mod.id}: {mod.title}</Text>
+                  <Text style={styles.moduleMeta}>{mod.lessons} lecciones · {mod.duration}</Text>
+                </View>
+              </TouchableOpacity>
+              {expandedModule === mod.id && mod.lessons_list.length > 0 && (
+                <View style={styles.accordionBody}>
+                  {mod.lessons_list.map((lesson, i) => (
+                    <View key={i} style={styles.lessonRow}>
+                      <Ionicons name="play-circle-outline" size={14} color={colors.textMuted} />
+                      <Text style={styles.lessonTitle}>{lesson}</Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.startModuleBtn}
-                      onPress={() => navigation.navigate('Lesson')}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons name="play-outline" size={14} color={colors.primary} />
-                      <Text style={styles.startModuleText}>Iniciar módulo</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          ))}
         </View>
 
-        <View style={{ height: spacing.xl }} />
+        {/* Requisitos */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Requisitos</Text>
+          {REQUIREMENTS.map((req, i) => (
+            <Text key={i} style={styles.reqText}>{req}</Text>
+          ))}
+        </View>
+
+        <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Sticky bottom */}
+      <View style={styles.stickyBottom}>
+        <View>
+          <Text style={styles.priceText}>$49.99</Text>
+          <Text style={styles.discountText}>Descuento aplicado</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.enrollBtn}
+          onPress={() => navigation.navigate('Roadmap')}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.enrollBtnText}>Inscribirme ahora</Text>
+        </TouchableOpacity>
+      </View>
+
+      <BottomNavBar activeTab="Catalog" navigation={navigation} />
     </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surface },
-  videoHero: {
-    backgroundColor: colors.primaryDark,
-    height: 200,
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  backBtn: {
-    position: 'absolute',
-    top: spacing.md,
-    left: spacing.md,
-    padding: spacing.xs,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: radius.full,
-  },
-  playBtn: { opacity: 0.9 },
-  videoLabel: { fontSize: fontSize.bodySm, color: 'rgba(255,255,255,0.65)' },
-  scroll: { flex: 1 },
-  courseHeader: {
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    height: 56,
     backgroundColor: colors.white,
-    padding: spacing.md,
-    gap: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  categoryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  categoryBadge: {
-    backgroundColor: colors.primaryLight,
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.avatarBg, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 13, fontWeight: '600', color: colors.avatarText },
+  scroll: { flex: 1 },
+  videoCover: {
+    height: 210,
+    backgroundColor: '#1A2B28',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playBtn: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoSection: {
+    backgroundColor: colors.white,
+    padding: spacing.md,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  courseTitle: { fontSize: fontSize.headingLg, fontWeight: '700', color: colors.textPrimary, lineHeight: 30 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
+  rating: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.accentAmber },
+  metaSeparator: { fontSize: fontSize.bodySm, color: colors.border },
+  metaText: { fontSize: fontSize.bodySm, color: colors.textMuted },
+  bestSellerBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.activeBg,
     paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 20,
   },
-  categoryText: { fontSize: fontSize.caption, fontWeight: '500', color: colors.successText },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  ratingText: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  courseTitle: { fontSize: fontSize.headingLg, fontWeight: '600', color: colors.textPrimary, lineHeight: 30 },
-  metaRow: { flexDirection: 'row', gap: spacing.md },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  actionRow: {
-    flexDirection: 'row',
-    padding: spacing.md,
-    gap: spacing.sm,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  primaryBtn: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryBtnText: { color: colors.white, fontSize: fontSize.body, fontWeight: '600' },
-  secondaryBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    borderRadius: radius.md,
-    height: 44,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-  },
-  secondaryBtnText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '500' },
+  bestSellerText: { fontSize: 11, fontWeight: '600', color: colors.successText },
   section: { padding: spacing.md, gap: spacing.sm },
   sectionTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
-  learningGrid: { gap: spacing.sm },
-  learningItem: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  learningCard: {
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  learningItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   learningText: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary, lineHeight: 22 },
-  accordionList: { gap: spacing.xs },
   accordionItem: {
     backgroundColor: colors.white,
     borderRadius: radius.md,
@@ -236,31 +219,41 @@ const styles = StyleSheet.create({
   },
   accordionHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     padding: spacing.md,
+    gap: 10,
   },
-  accordionLeft: { flex: 1, gap: 2 },
-  moduleNum: { fontSize: fontSize.caption, fontWeight: '500', color: colors.textMuted },
-  moduleTitle: { fontSize: fontSize.headingSm, fontWeight: '500', color: colors.textPrimary },
+  accordionInfo: { flex: 1 },
+  moduleTitle: { fontSize: fontSize.body, fontWeight: '500', color: colors.textPrimary },
+  moduleMeta: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
   accordionBody: {
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
+    gap: 8,
   },
-  accordionMeta: {},
-  accordionMetaText: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  startModuleBtn: {
+  lessonRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  lessonTitle: { fontSize: fontSize.bodySm, color: colors.textMuted },
+  reqText: { fontSize: fontSize.body, color: colors.textMuted, lineHeight: 22 },
+  stickyBottom: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primaryLight,
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  startModuleText: { fontSize: fontSize.bodySm, color: colors.primary, fontWeight: '500' },
+  priceText: { fontSize: 22, fontWeight: '700', color: colors.primary },
+  discountText: { fontSize: 11, color: colors.accentAmber, fontWeight: '500' },
+  enrollBtn: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: radius.md,
+  },
+  enrollBtnText: { fontSize: fontSize.body, fontWeight: '700', color: colors.white },
 })

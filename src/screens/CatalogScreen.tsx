@@ -16,167 +16,194 @@ import BottomNavBar from '../components/BottomNavBar'
 import { coursesService } from '../services/courses.service'
 import { Course } from '../types'
 
-const FILTERS = ['Todos', 'Tecnología', 'Diseño', 'Negocios', 'Ciencias']
+const FILTERS = ['Todos', 'Diseño', 'Tecnología']
 
-const COURSES = [
+const FEATURED = [
   {
-    id: '1',
-    title: 'Arquitectura de Sistemas Escalables',
-    category: 'Tecnología',
-    duration: '24h',
-    status: 'active',
-    modules: 8,
+    id: 'f1',
+    badge: 'TOP VENTAS',
+    badgeColor: colors.accentViolet,
+    category: 'DISEÑO UX/UI',
+    rating: '4.9',
+    title: 'Máster en Product Design: De la idea al prototipo real',
+    description: 'Domina las herramientas líderes de la industria y crea experiencias de usuario que impacten a millones de...',
+    price: '$129.00',
+    large: true,
   },
   {
-    id: '2',
-    title: 'Diseño de Interfaces Avanzado',
-    category: 'Diseño',
-    duration: '18h',
-    status: 'new',
-    modules: 6,
+    id: 'f2',
+    badge: null,
+    badgeColor: null,
+    category: 'TECNOLOGÍA',
+    rating: '4.8',
+    title: 'Arquitectura de Microservicios con Go',
+    description: null,
+    price: '$129.00',
+    large: false,
   },
-  {
-    id: '3',
-    title: 'Estrategia de Producto Digital',
-    category: 'Negocios',
-    duration: '20h',
-    status: 'active',
-    modules: 7,
-  },
-  {
-    id: '4',
-    title: 'Machine Learning Aplicado',
-    category: 'Tecnología',
-    duration: '32h',
-    status: 'new',
-    modules: 10,
-  },
-  {
-    id: '5',
-    title: 'Gestión Ágil de Proyectos',
-    category: 'Negocios',
-    duration: '16h',
-    status: 'active',
-    modules: 5,
-  },
+]
+
+const MORE_COURSES = [
+  { id: 'm1', category: 'NEGOCIOS', title: 'Estrategias de Marketing Digital para Startups', price: '$129.00', duration: '12h de contenido', level: 'Principiante' },
+  { id: 'm2', category: 'TECNOLOGÍA', title: 'Análisis de Datos con Python y Pandas', price: '$129.00', duration: '24h de contenido', level: 'Intermedio' },
+  { id: 'm3', category: 'DISEÑO', title: 'Branding Visual: Crea identidades memorables', price: '$129.00', duration: '16h de contenido', level: 'Avanzado' },
 ]
 
 export default function CatalogScreen({ navigation }: any) {
   const [query, setQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('Todos')
   const [apiCourses, setApiCourses] = useState<Course[]>([])
-  const [loadingApi, setLoadingApi] = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     coursesService.getAll({ status: 'published' })
       .then(setApiCourses)
-      .finally(() => setLoadingApi(false))
+      .finally(() => setLoading(false))
   }, [])
-
-  // Mezcla datos reales con los de ejemplo (fallback si la API no tiene datos aún)
-  const source = apiCourses.length > 0
-    ? apiCourses.map((c) => ({
-        id: c.id,
-        title: c.title,
-        category: c.category,
-        duration: `${c.estimated_hours}h`,
-        status: 'active' as const,
-        modules: 0,
-        price: 129,
-      }))
-    : COURSES.map((c: any) => ({ ...c, price: 129 }))
-
-  const filtered = source.filter((c) => {
-    const matchesQuery = c.title.toLowerCase().includes(query.toLowerCase())
-    const matchesFilter = activeFilter === 'Todos' || c.category === activeFilter
-    return matchesQuery && matchesFilter
-  })
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primaryDark} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      {/* Hero header */}
-      <View style={styles.hero}>
-        <Text style={styles.heroTitle}>Explora tu futuro</Text>
-        {/* Search */}
-        <View style={styles.searchWrapper}>
-          <Ionicons name="search-outline" size={18} color={colors.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            value={query}
-            onChangeText={setQuery}
-            placeholder="¿Qué quieres aprender hoy?"
-            placeholderTextColor="rgba(255,255,255,0.5)"
-          />
-          {query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery('')}>
-              <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.6)" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* Filters */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersScroll}
-        contentContainerStyle={styles.filtersContent}
-      >
-        {FILTERS.map((f) => (
-          <TouchableOpacity
-            key={f}
-            style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
-            onPress={() => setActiveFilter(f)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>{f}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Section header */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Cursos disponibles</Text>
-          <Text style={styles.sectionCount}>{filtered.length} cursos</Text>
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        {/* Hero text + search */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>Explora tu futuro</Text>
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search-outline" size={18} color={colors.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              value={query}
+              onChangeText={setQuery}
+              placeholder="¿Qué quieres aprender hoy?"
+              placeholderTextColor={colors.placeholder}
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery('')}>
+                <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
-        {/* Course cards */}
-        <View style={styles.courseList}>
-          {filtered.map((course) => (
+        {/* Filters */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll} contentContainerStyle={styles.filtersContent}>
+          {FILTERS.map((f) => (
             <TouchableOpacity
-              key={course.id}
-              style={styles.courseCard}
-              onPress={() => navigation.navigate('CourseDetail', { course })}
-              activeOpacity={0.8}
+              key={f}
+              style={[styles.chip, activeFilter === f && styles.chipActive]}
+              onPress={() => setActiveFilter(f)}
+              activeOpacity={0.7}
             >
-              {/* Cover */}
-              <View style={styles.courseCover}>
-                <Ionicons name="play-circle-outline" size={28} color={colors.white} />
-              </View>
-              {/* Info */}
-              <View style={styles.courseInfo}>
-                <View style={styles.courseTopRow}>
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryBadgeText}>{course.category}</Text>
-                  </View>
-                  {course.status === 'new' && (
-                    <View style={styles.newBadge}>
-                      <Text style={styles.newBadgeText}>Nuevo</Text>
-                    </View>
-                  )}
+              <Text style={[styles.chipText, activeFilter === f && styles.chipTextActive]}>{f}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Cursos Destacados */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <View>
+              <Text style={styles.sectionTitle}>Cursos Destacados</Text>
+              <Text style={styles.sectionSub}>Los más valorados por nuestra comunidad académica</Text>
+            </View>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={styles.seeAll}>Ver todos →</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Large featured card */}
+          <TouchableOpacity
+            style={styles.featuredCard}
+            onPress={() => navigation.navigate('CourseDetail', { courseId: FEATURED[0].id })}
+            activeOpacity={0.9}
+          >
+            <View style={styles.featuredImg}>
+              <Ionicons name="laptop-outline" size={44} color="rgba(255,255,255,0.3)" />
+              {FEATURED[0].badge && (
+                <View style={[styles.featuredBadge, { backgroundColor: FEATURED[0].badgeColor ?? colors.accentViolet }]}>
+                  <Text style={styles.featuredBadgeText}>{FEATURED[0].badge}</Text>
                 </View>
-                <Text style={styles.courseTitle} numberOfLines={2}>{course.title}</Text>
-                <View style={styles.courseMeta}>
-                  <Ionicons name="time-outline" size={12} color={colors.textMuted} />
-                  <Text style={styles.courseMetaText}>{course.duration}</Text>
-                  <Ionicons name="layers-outline" size={12} color={colors.textMuted} />
-                  <Text style={styles.courseMetaText}>{course.modules} módulos</Text>
+              )}
+            </View>
+            <View style={styles.featuredBody}>
+              <View style={styles.metaRow}>
+                <Text style={styles.categoryTag}>{FEATURED[0].category}</Text>
+                <View style={styles.ratingRow}>
+                  <Ionicons name="star" size={12} color={colors.accentAmber} />
+                  <Text style={styles.rating}>{FEATURED[0].rating}</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+              <Text style={styles.featuredTitle}>{FEATURED[0].title}</Text>
+              <Text style={styles.featuredDesc} numberOfLines={2}>{FEATURED[0].description}</Text>
+              <View style={styles.priceRow}>
+                <Text style={styles.price}>{FEATURED[0].price}</Text>
+                <TouchableOpacity style={styles.viewBtn} activeOpacity={0.8} onPress={() => navigation.navigate('CourseDetail', { courseId: FEATURED[0].id })}>
+                  <Text style={styles.viewBtnText}>Ver Curso</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Second featured card (compact) */}
+          <TouchableOpacity
+            style={styles.featuredCard}
+            onPress={() => navigation.navigate('CourseDetail', { courseId: FEATURED[1].id })}
+            activeOpacity={0.9}
+          >
+            <View style={[styles.featuredImg, { height: 140 }]}>
+              <Ionicons name="code-slash-outline" size={44} color="rgba(255,255,255,0.3)" />
+            </View>
+            <View style={styles.featuredBody}>
+              <View style={styles.metaRow}>
+                <Text style={styles.categoryTag}>{FEATURED[1].category}</Text>
+                <View style={styles.ratingRow}>
+                  <Ionicons name="star" size={12} color={colors.accentAmber} />
+                  <Text style={styles.rating}>{FEATURED[1].rating}</Text>
+                </View>
+              </View>
+              <Text style={styles.featuredTitle}>{FEATURED[1].title}</Text>
+              <View style={styles.priceRow}>
+                <Text style={styles.price}>{FEATURED[1].price}</Text>
+                <View style={styles.eyeBtn}>
+                  <Ionicons name="eye-outline" size={18} color={colors.textMuted} />
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Más cursos para ti */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Más cursos para ti</Text>
+          <Text style={styles.sectionSub}>Explora nuestra biblioteca completa de especializaciones</Text>
+
+          {MORE_COURSES.map((c) => (
+            <TouchableOpacity
+              key={c.id}
+              style={styles.listCard}
+              onPress={() => navigation.navigate('CourseDetail', { courseId: c.id })}
+              activeOpacity={0.85}
+            >
+              <View style={styles.listImg}>
+                <Ionicons name="laptop-outline" size={24} color="rgba(255,255,255,0.4)" />
+              </View>
+              <View style={styles.listInfo}>
+                <Text style={styles.listCategory}>{c.category}</Text>
+                <Text style={styles.listTitle} numberOfLines={2}>{c.title}</Text>
+                <View style={styles.listMeta}>
+                  <Ionicons name="time-outline" size={11} color={colors.textMuted} />
+                  <Text style={styles.listMetaText}>{c.duration}</Text>
+                  <Ionicons name="trending-up-outline" size={11} color={colors.textMuted} style={{ marginLeft: 8 }} />
+                  <Text style={styles.listMetaText}>{c.level}</Text>
+                </View>
+              </View>
+              <View style={styles.listRight}>
+                <Text style={styles.listPrice}>{c.price}</Text>
+                <TouchableOpacity style={styles.cartBtn} activeOpacity={0.8} onPress={() => navigation.navigate('CourseDetail', { courseId: c.id })}>
+                  <Ionicons name="cart-outline" size={18} color={colors.primary} />
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -191,84 +218,137 @@ export default function CatalogScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surface },
-  hero: {
-    backgroundColor: colors.primaryDark,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    gap: spacing.sm,
+    height: 56,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  heroTitle: { fontSize: fontSize.headingXl, fontWeight: '600', color: colors.white },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  avatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.avatarBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: { fontSize: 13, fontWeight: '600', color: colors.avatarText },
+  scroll: { flex: 1 },
+  heroSection: { padding: spacing.md, paddingBottom: spacing.sm, backgroundColor: colors.white },
+  heroTitle: { fontSize: fontSize.headingLg, fontWeight: '600', color: colors.textPrimary, marginBottom: 12 },
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: 12,
     height: 44,
-    gap: spacing.sm,
+    gap: 8,
   },
-  searchInput: { flex: 1, fontSize: fontSize.body, color: colors.white },
-  filtersScroll: { backgroundColor: colors.white, maxHeight: 52 },
-  filtersContent: { paddingHorizontal: spacing.md, paddingVertical: 10, gap: spacing.sm, flexDirection: 'row' },
-  filterChip: {
-    paddingHorizontal: 14,
+  searchInput: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary },
+  filtersScroll: { backgroundColor: colors.white, borderBottomWidth: 1, borderBottomColor: colors.border, maxHeight: 52 },
+  filtersContent: { paddingHorizontal: spacing.md, paddingVertical: 10, gap: 8, flexDirection: 'row' },
+  chip: {
+    paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.white,
   },
-  filterChipActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
-  filterText: { fontSize: fontSize.bodySm, color: colors.textMuted, fontWeight: '400' },
-  filterTextActive: { color: colors.primary, fontWeight: '500' },
-  scroll: { flex: 1 },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-  },
+  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipText: { fontSize: fontSize.bodySm, color: colors.textMuted, fontWeight: '400' },
+  chipTextActive: { color: colors.white, fontWeight: '500' },
+  section: { padding: spacing.md, gap: spacing.sm },
+  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   sectionTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary },
-  sectionCount: { fontSize: fontSize.bodySm, color: colors.textMuted },
-  courseList: { paddingHorizontal: spacing.md, gap: spacing.sm },
-  courseCard: {
+  sectionSub: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
+  seeAll: { fontSize: fontSize.bodySm, color: colors.primary, fontWeight: '500' },
+  featuredCard: {
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  featuredImg: {
+    height: 180,
+    backgroundColor: colors.primaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  featuredBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  featuredBadgeText: { fontSize: 9, fontWeight: '700', color: colors.white, letterSpacing: 0.5 },
+  featuredBody: { padding: 14, gap: 6 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  categoryTag: { fontSize: 10, fontWeight: '600', color: colors.successText, letterSpacing: 0.3 },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  rating: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textMuted },
+  featuredTitle: { fontSize: fontSize.headingSm, fontWeight: '600', color: colors.textPrimary, lineHeight: 22 },
+  featuredDesc: { fontSize: fontSize.bodySm, color: colors.textMuted, lineHeight: 20 },
+  priceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+  price: { fontSize: fontSize.headingSm, fontWeight: '700', color: colors.textPrimary },
+  viewBtn: { backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: radius.md },
+  viewBtnText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.white },
+  eyeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.sm,
-    gap: spacing.sm,
+    padding: 12,
+    gap: 12,
   },
-  courseCover: {
-    width: 72,
-    height: 72,
+  listImg: {
+    width: 64,
+    height: 64,
     borderRadius: radius.md,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  listInfo: { flex: 1, gap: 3 },
+  listCategory: { fontSize: 10, fontWeight: '600', color: colors.successText, letterSpacing: 0.3 },
+  listTitle: { fontSize: 13, fontWeight: '500', color: colors.textPrimary, lineHeight: 18 },
+  listMeta: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 2 },
+  listMetaText: { fontSize: 11, color: colors.textMuted },
+  listRight: { alignItems: 'flex-end', gap: 8 },
+  listPrice: { fontSize: fontSize.bodySm, fontWeight: '700', color: colors.textPrimary },
+  cartBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  courseInfo: { flex: 1, gap: 6 },
-  courseTopRow: { flexDirection: 'row', gap: spacing.xs },
-  categoryBadge: {
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 20,
-  },
-  categoryBadgeText: { fontSize: fontSize.caption, fontWeight: '500', color: colors.successText },
-  newBadge: {
-    backgroundColor: colors.progressBg,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 20,
-  },
-  newBadgeText: { fontSize: fontSize.caption, fontWeight: '500', color: colors.progressText },
-  courseTitle: { fontSize: fontSize.headingSm, fontWeight: '500', color: colors.textPrimary, lineHeight: 22 },
-  courseMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  courseMetaText: { fontSize: fontSize.caption, color: colors.textMuted, marginRight: spacing.xs },
 })

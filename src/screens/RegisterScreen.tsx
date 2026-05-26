@@ -25,14 +25,13 @@ const PROGRAMS = [
 ]
 
 export default function RegisterScreen({ navigation }: any) {
-  const { register, completeOnboarding } = useAuth()
+  const { register } = useAuth()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [program, setProgram] = useState('')
   const [showPrograms, setShowPrograms] = useState(false)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [loading, setLoading] = useState(false)
 
   return (
@@ -41,11 +40,10 @@ export default function RegisterScreen({ navigation }: any) {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>SkillPath</Text>
-        <View style={{ width: 38 }} />
+        <TouchableOpacity onPress={() => navigation.navigate('Login')} activeOpacity={0.7}>
+          <Text style={{ fontSize: 13, color: colors.textMuted }}>¿Ya tienes cuenta? <Text style={{ color: colors.primary, fontWeight: '600' }}>Iniciar sesión</Text></Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -152,28 +150,20 @@ export default function RegisterScreen({ navigation }: any) {
             </View>
 
             {/* Terms */}
-            <TouchableOpacity
-              style={styles.checkboxRow}
-              onPress={() => setAcceptedTerms(!acceptedTerms)}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.checkbox, acceptedTerms && styles.checkboxActive]}>
-                {acceptedTerms && <Ionicons name="checkmark" size={10} color={colors.white} />}
-              </View>
-              <Text style={styles.termsText}>
-                Acepto los{' '}
-                <Text style={styles.termsLink}>Términos de Uso</Text>
-                {' '}y la{' '}
-                <Text style={styles.termsLink}>Política de Privacidad</Text>
-              </Text>
-            </TouchableOpacity>
+            <Text style={{ fontSize: 12, color: colors.textMuted, lineHeight: 18 }}>
+              Al registrarme, acepto los{' '}
+              <Text style={{ color: colors.primary, fontWeight: '500' }}>Términos de Servicio</Text>
+              {' '}y la{' '}
+              <Text style={{ color: colors.primary, fontWeight: '500' }}>Política de Privacidad</Text>
+              {' '}de SkillPath.
+            </Text>
           </View>
 
           {/* Actions */}
           <TouchableOpacity
-            style={[styles.primaryButton, (!acceptedTerms || loading) && styles.primaryButtonDisabled]}
+            style={[styles.primaryButton, loading && styles.primaryButtonDisabled]}
             activeOpacity={0.85}
-            disabled={!acceptedTerms || loading}
+            disabled={loading}
             onPress={async () => {
               if (!fullName || !email || !password || !program) {
                 Alert.alert('Campos requeridos', 'Completa todos los campos.')
@@ -181,14 +171,13 @@ export default function RegisterScreen({ navigation }: any) {
               }
               setLoading(true)
               try {
-                await register(email, password)
-                await completeOnboarding({
+                await register(email, password, {
                   name: fullName,
                   role: 'student',
                   career: program,
                   faculty: program,
                 })
-                // navigator.tsx redirige automáticamente al StudentStack
+                // RootStack redirige automáticamente al StudentStack
               } catch (err: any) {
                 Alert.alert('Error al registrarse', err.message)
               } finally {
@@ -198,17 +187,28 @@ export default function RegisterScreen({ navigation }: any) {
           >
             {loading
               ? <ActivityIndicator color={colors.white} />
-              : <Text style={styles.primaryButtonText}>Crear cuenta</Text>
+              : <Text style={styles.primaryButtonText}>Crear mi cuenta</Text>
             }
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => navigation.navigate('Login')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.secondaryButtonText}>Ya tengo una cuenta</Text>
+          {/* Divider */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 8 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+            <Text style={{ fontSize: 12, color: colors.textMuted }}>o</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+          </View>
+
+          {/* Google Button */}
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: 8, borderWidth: 1.5, borderColor: colors.border, marginBottom: 8 }} activeOpacity={0.8}>
+            <Ionicons name="logo-google" size={18} color="#EA4335" />
+            <Text style={{ fontSize: 14, fontWeight: '500', color: colors.textPrimary }}>Registrarse con Google</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Security notice */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16 }}>
+          <Ionicons name="lock-closed-outline" size={14} color={colors.textMuted} />
+          <Text style={{ fontSize: 12, color: colors.textMuted }}>Tus datos académicos están encriptados y protegidos.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  backButton: { padding: spacing.xs },
   headerTitle: { fontSize: 18, fontWeight: '700', color: colors.primary },
   scrollContent: { padding: spacing.md, paddingTop: 20 },
   card: {
@@ -290,20 +289,6 @@ const styles = StyleSheet.create({
   },
   dropdownText: { fontSize: fontSize.body, color: colors.textPrimary },
   dropdownTextActive: { color: colors.primary, fontWeight: '500' },
-  checkboxRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginTop: spacing.xs },
-  checkbox: {
-    width: 16,
-    height: 16,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  checkboxActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  termsText: { flex: 1, fontSize: fontSize.bodySm, color: colors.textMuted, lineHeight: 20 },
-  termsLink: { color: colors.primary, fontWeight: '500' },
   primaryButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.md,
@@ -314,13 +299,4 @@ const styles = StyleSheet.create({
   },
   primaryButtonDisabled: { backgroundColor: colors.surface },
   primaryButtonText: { color: colors.white, fontSize: fontSize.body, fontWeight: '600' },
-  secondaryButton: {
-    borderRadius: radius.md,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.border,
-  },
-  secondaryButtonText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '500' },
 })

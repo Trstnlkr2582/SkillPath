@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
   Switch,
+  Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -16,16 +17,14 @@ const CRITERIA = [
   {
     id: '1',
     title: 'Completar curso: Patrones de Diseño Vue.js',
-    type: 'Obligatorio • Debe estar',
-    progress: 'Finalizado con más > 80/100',
+    sub: 'Obligatorio · Debe estar finalizado con nota > 80/100',
     icon: 'book-outline',
     color: colors.activeBg,
   },
   {
     id: '2',
     title: 'Evaluación de Capstone Project',
-    type: 'Obligatorio • Calificación > Valoración por',
-    progress: 'Instructor requerida',
+    sub: 'Obligatorio · Calificación en por mentor aprobado',
     icon: 'checkmark-circle-outline',
     color: colors.primaryLight,
     completed: true,
@@ -33,20 +32,20 @@ const CRITERIA = [
   {
     id: '3',
     title: 'Examen de Certificación Final',
-    type: 'Obligatorio • 50 preguntas.',
-    progress: 'tiempo mínimo: 60 min',
+    sub: 'Obligatorio · 50 preguntas, tiempo límite: 90 min',
     icon: 'document-text-outline',
     color: colors.surface,
   },
 ]
 
 const AUTOMATION_RULES = [
-  { label: 'Actividad Logística', sub: 'Si el usuario completa todos los módulos activa emisión', key: 'logistics', on: true },
-  { label: 'Notificación de Éxito', sub: 'Permite "¡Certificación obtenida!"', key: 'notification', on: true },
-  { label: 'Publicación en LinkedIn', sub: 'Comparte la credencial en el perfil del usuario', key: 'linkedin', on: false },
+  { label: 'Activador Logístico', sub: 'Si el usuario completa todos los módulos activa emisión', key: 'logistics', on: true, icon: 'flash-outline' },
+  { label: 'Notificación de Éxito', sub: 'Plantilla: "Certificación_V1.SSP"', key: 'notification', on: true, icon: 'mail-outline' },
+  { label: 'Publicación en LinkedIn', sub: 'Habilitar botón "Add to Profile"', key: 'linkedin', on: false, icon: 'share-social-outline' },
+  { label: 'Generación de PDF Físico', sub: 'Proceso por Proveedor Institucional', key: 'pdf', on: false, icon: 'print-outline' },
 ]
 
-const BADGE_COLORS = ['#2A6B5A', '#C87B00', '#6B5CB8', '#1C2B2A']
+const BADGE_COLORS = ['#2A6B5A', '#1C2B2A', '#C87B00', '#6B5CB8']
 
 export default function AdminCourseDetailScreen({ navigation }: any) {
   const [toggles, setToggles] = useState<Record<string, boolean>>(
@@ -57,56 +56,59 @@ export default function AdminCourseDetailScreen({ navigation }: any) {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuBtn}>
           <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <TouchableOpacity style={styles.headerSearch}>
-            <Ionicons name="search-outline" size={18} color={colors.textMuted} />
+        <Text style={styles.brand}>SkillPath</Text>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => Alert.alert('Buscar', 'Busca en los contenidos de este curso.')}>
+            <Ionicons name="search-outline" size={20} color={colors.textMuted} />
           </TouchableOpacity>
-          <View style={styles.avatar}>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => Alert.alert('Notificaciones', 'No tienes notificaciones pendientes.')}>
+            <Ionicons name="notifications-outline" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Profile')}>
             <Text style={styles.avatarText}>AD</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Breadcrumb + title */}
         <View style={styles.titleSection}>
-          <Text style={styles.breadcrumb}>MC-2022-UIFE-01</Text>
+          <View style={styles.titleTopRow}>
+            <View style={styles.draftBadge}>
+              <Text style={styles.draftBadgeText}>EN BORRADOR</Text>
+            </View>
+            <Text style={styles.courseId}>ID: MC-2025-VUE-01</Text>
+          </View>
           <Text style={styles.courseTitle}>Desarrollo Avanzado con Vue.js 3</Text>
           <Text style={styles.courseSub}>
-            Configuración detallada de criterios y reglas para la micro-credencial de alto nivel
+            Configuración detallada de criterios y reglas para la micro-credencial académica.
           </Text>
           <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.previewBtn} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.previewBtn} activeOpacity={0.7} onPress={() => Alert.alert('Vista Previa', 'Abriendo previsualización del curso...')}>
               <Ionicons name="eye-outline" size={14} color={colors.primary} />
               <Text style={styles.previewBtnText}>Vista Previa</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.publishBtn} activeOpacity={0.85}>
-              <Ionicons name="ribbon-outline" size={14} color={colors.white} />
+            <TouchableOpacity style={styles.publishBtn} activeOpacity={0.85} onPress={() => navigation.navigate('AdminConfirmAction')}>
+              <Ionicons name="share-outline" size={14} color={colors.white} />
               <Text style={styles.publishBtnText}>Publicar Credencial</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Badge design */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Diseño de Insignia</Text>
-            <TouchableOpacity style={styles.editBtn}>
+            <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('AdminCreateCourse')}>
               <Ionicons name="create-outline" size={14} color={colors.primary} />
-              <Text style={styles.editBtnText}>Editar</Text>
+              <Text style={styles.editBtnText}>Editor</Text>
             </TouchableOpacity>
           </View>
-
           <View style={styles.badgeContainer}>
             <View style={styles.badgePreview}>
-              <View style={styles.badgeIcon}>
-                <Ionicons name="chevron-up" size={20} color={colors.white} />
-              </View>
+              <Ionicons name="triangle-outline" size={24} color="rgba(255,255,255,0.9)" />
               <Text style={styles.badgeName}>gUE.JS</Text>
               <Text style={styles.badgeLevel}>MASTER</Text>
             </View>
@@ -118,21 +120,17 @@ export default function AdminCourseDetailScreen({ navigation }: any) {
                 ))}
               </View>
               <Text style={styles.metaLabel}>Metadatos OpenBadges v2.1</Text>
-              <View style={styles.metaGrid}>
-                <View style={styles.metaItem}>
+              <View style={styles.metaList}>
+                <View style={styles.metaRow}>
                   <Text style={styles.metaKey}>Issuer ID</Text>
-                  <Text style={styles.metaValue}>Fundación...</Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Text style={styles.metaKey}>Badge ID</Text>
                   <Text style={styles.metaValue}>SKP-0922</Text>
                 </View>
-                <View style={styles.metaItem}>
-                  <Text style={styles.metaKey}>Revocado</Text>
-                  <Text style={styles.metaValue}>No</Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.metaKey}>Revalidable:</Text>
+                  <Text style={styles.metaValue}>Sí</Text>
                 </View>
-                <View style={styles.metaItem}>
-                  <Text style={styles.metaKey}>Emitido</Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.metaKey}>Expira:</Text>
                   <Text style={styles.metaValue}>Nunca</Text>
                 </View>
               </View>
@@ -140,11 +138,10 @@ export default function AdminCourseDetailScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Criteria */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Criterios de Obtención</Text>
-            <TouchableOpacity style={styles.addCriteriaBtn}>
+            <TouchableOpacity style={styles.addBtn} onPress={() => Alert.alert('Nuevo Criterio', 'Agrega un criterio de obtención.')}>
               <Ionicons name="add" size={18} color={colors.primary} />
             </TouchableOpacity>
           </View>
@@ -155,23 +152,21 @@ export default function AdminCourseDetailScreen({ navigation }: any) {
               </View>
               <View style={styles.criteriaInfo}>
                 <Text style={styles.criteriaTitle}>{c.title}</Text>
-                <Text style={styles.criteriaType}>{c.type}</Text>
-                <Text style={styles.criteriaProgress}>{c.progress}</Text>
+                <Text style={styles.criteriaSub}>{c.sub}</Text>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => Alert.alert(c.title, 'Editar o eliminar este criterio.')}>
                 <Ionicons name="ellipsis-vertical" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
           ))}
         </View>
 
-        {/* Automation rules */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Reglas de Automatización</Text>
           {AUTOMATION_RULES.map((rule) => (
             <View key={rule.key} style={styles.ruleRow}>
               <View style={styles.ruleIcon}>
-                <Ionicons name="flash-outline" size={16} color={colors.primary} />
+                <Ionicons name={rule.icon as any} size={16} color={colors.primary} />
               </View>
               <View style={styles.ruleInfo}>
                 <Text style={styles.ruleLabel}>{rule.label}</Text>
@@ -186,6 +181,23 @@ export default function AdminCourseDetailScreen({ navigation }: any) {
               />
             </View>
           ))}
+        </View>
+
+        <View style={styles.statsBar}>
+          <View style={styles.statsItem}>
+            <Text style={styles.statsValue}>0</Text>
+            <Text style={styles.statsLabel}>Emitido</Text>
+          </View>
+          <View style={styles.statsDivider} />
+          <View style={styles.statsItem}>
+            <Text style={[styles.statsValue, { color: colors.accentAmber }]}>42</Text>
+            <Text style={styles.statsLabel}>En proceso</Text>
+          </View>
+          <View style={styles.statsDivider} />
+          <View style={styles.statsItem}>
+            <Text style={[styles.statsValue, { color: colors.primary }]}>98%</Text>
+            <Text style={styles.statsLabel}>Confianza Regla</Text>
+          </View>
         </View>
 
         <View style={{ height: spacing.xl }} />
@@ -203,29 +215,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 56,
     backgroundColor: colors.white,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerBtn: { padding: spacing.xs },
-  headerCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  headerSearch: { padding: spacing.xs },
+  menuBtn: { padding: spacing.xs, gap: 4 },
+  menuLine: { width: 20, height: 2, borderRadius: 1, backgroundColor: colors.textPrimary },
+  brand: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  iconBtn: { padding: spacing.xs },
   avatar: {
     width: 34,
     height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.avatarBg,
+    borderRadius: 8,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontSize: fontSize.bodySm, fontWeight: '600', color: colors.avatarText },
+  avatarText: { fontSize: 13, fontWeight: '700', color: colors.successText },
   scroll: { flex: 1 },
   titleSection: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
-    paddingBottom: spacing.xs,
+    paddingBottom: spacing.sm,
     gap: spacing.xs,
   },
-  breadcrumb: { fontSize: fontSize.caption, fontWeight: '600', color: colors.textMuted, letterSpacing: 0.4 },
+  titleTopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  draftBadge: {
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+  },
+  draftBadgeText: { fontSize: fontSize.caption, fontWeight: '700', color: colors.primary, letterSpacing: 0.4 },
+  courseId: { fontSize: fontSize.caption, color: colors.textMuted },
   courseTitle: { fontSize: fontSize.headingMd, fontWeight: '600', color: colors.textPrimary },
   courseSub: { fontSize: fontSize.bodySm, color: colors.textMuted, lineHeight: 20 },
   actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
@@ -272,7 +294,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryLight,
   },
   editBtnText: { fontSize: fontSize.caption, fontWeight: '500', color: colors.primary },
-  addCriteriaBtn: {
+  addBtn: {
     width: 30,
     height: 30,
     borderRadius: radius.sm,
@@ -282,33 +304,26 @@ const styles = StyleSheet.create({
   },
   badgeContainer: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
   badgePreview: {
-    width: 100,
-    height: 100,
+    width: 96,
+    height: 96,
     borderRadius: radius.lg,
     backgroundColor: colors.accentViolet,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
+    gap: 3,
+    flexShrink: 0,
   },
-  badgeIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeName: { fontSize: fontSize.bodySm, fontWeight: '700', color: colors.white, letterSpacing: 1 },
-  badgeLevel: { fontSize: fontSize.caption, fontWeight: '600', color: 'rgba(255,255,255,0.7)', letterSpacing: 2 },
+  badgeName: { fontSize: 11, fontWeight: '700', color: colors.white, letterSpacing: 1 },
+  badgeLevel: { fontSize: 9, fontWeight: '600', color: 'rgba(255,255,255,0.7)', letterSpacing: 2 },
   badgeInfo: { flex: 1, gap: spacing.xs },
   badgeInfoLabel: { fontSize: fontSize.label, fontWeight: '600', color: colors.textMuted },
   colorPalette: { flexDirection: 'row', gap: 6 },
-  colorDot: { width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: colors.white },
-  metaLabel: { fontSize: fontSize.caption, fontWeight: '600', color: colors.textMuted, marginTop: 4 },
-  metaGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
-  metaItem: { width: '47%' },
-  metaKey: { fontSize: 9, color: colors.textMuted, fontWeight: '500' },
-  metaValue: { fontSize: fontSize.caption, color: colors.textPrimary, fontWeight: '500' },
+  colorDot: { width: 18, height: 18, borderRadius: 9 },
+  metaLabel: { fontSize: fontSize.caption, fontWeight: '600', color: colors.textMuted, marginTop: 2 },
+  metaList: { gap: 3 },
+  metaRow: { flexDirection: 'row', gap: spacing.sm },
+  metaKey: { fontSize: fontSize.caption, color: colors.textMuted, width: 70 },
+  metaValue: { fontSize: fontSize.caption, fontWeight: '500', color: colors.textPrimary },
   criteriaItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -327,11 +342,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
+    flexShrink: 0,
   },
   criteriaInfo: { flex: 1 },
   criteriaTitle: { fontSize: fontSize.bodySm, fontWeight: '500', color: colors.textPrimary },
-  criteriaType: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2 },
-  criteriaProgress: { fontSize: fontSize.caption, color: colors.primary, marginTop: 1 },
+  criteriaSub: { fontSize: fontSize.caption, color: colors.textMuted, marginTop: 2, lineHeight: 16 },
   ruleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 4 },
   ruleIcon: {
     width: 32,
@@ -344,4 +359,18 @@ const styles = StyleSheet.create({
   ruleInfo: { flex: 1 },
   ruleLabel: { fontSize: fontSize.body, fontWeight: '500', color: colors.textPrimary },
   ruleSub: { fontSize: fontSize.caption, color: colors.textMuted },
+  statsBar: {
+    flexDirection: 'row',
+    marginHorizontal: spacing.md,
+    marginTop: spacing.md,
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
+  },
+  statsItem: { flex: 1, alignItems: 'center', gap: 2 },
+  statsDivider: { width: 1, backgroundColor: colors.border },
+  statsValue: { fontSize: fontSize.headingSm, fontWeight: '700', color: colors.textPrimary },
+  statsLabel: { fontSize: fontSize.caption, color: colors.textMuted },
 })
